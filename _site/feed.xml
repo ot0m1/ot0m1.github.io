@@ -1,0 +1,688 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2021-04-27T13:44:29+09:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">tmp/log</title><subtitle>GMO Pepabo, Inc. フィヨルドブートキャンプ</subtitle><entry><title type="html">フィヨルドブートキャンプのライトニングトーク会で Rack について話した</title><link href="http://localhost:4000/talked-about-rack/" rel="alternate" type="text/html" title="フィヨルドブートキャンプのライトニングトーク会で Rack について話した" /><published>2021-04-27T00:00:00+09:00</published><updated>2021-04-27T00:00:00+09:00</updated><id>http://localhost:4000/talked-about-rack</id><content type="html" xml:base="http://localhost:4000/talked-about-rack/">&lt;p&gt;フィヨルドブートキャンプのライトニングトーク会に先日参加し、Rack について話したのでスライドと学んで得た内容を書く。&lt;/p&gt;
+
+&lt;!-- more --&gt;
+
+&lt;p&gt;最初にライトニングトーク会へ参加するというのだけ決めて、テーマは後から考えた。&lt;/p&gt;
+
+&lt;p&gt;Ruby の gem である OmniAuth を使っているときにミドルウェアの概念に出会ったので、よくわかっていないミドルウェアのことを学ぶいい機会だなと思ったので発表テーマに選んで、Rack を触ってみた。&lt;/p&gt;
+
+&lt;h1 id=&quot;発表したスライド&quot;&gt;発表したスライド&lt;/h1&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://speakerdeck.com/ot0m1/rack-karajian-rumidoruueafalseshi-jie&quot;&gt;https://speakerdeck.com/ot0m1/rack-karajian-rumidoruueafalseshi-jie&lt;/a&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;発表した内容&quot;&gt;発表した内容&lt;/h1&gt;
+
+&lt;p&gt;Rack から見るミドルウェアの世界というタイトルで、ミドルウェアってどんなものか、Rack とはなんぞや、Rack を触ってみてどうかをお話します。&lt;/p&gt;
+
+&lt;h2 id=&quot;なぜ-rack-を触ろうと思ったか&quot;&gt;なぜ Rack を触ろうと思ったか&lt;/h2&gt;
+
+&lt;p&gt;「omniauth を使って GitHub 認証を実装する」のプラクティスをやっているときに読んだパーフェクト Ruby on Rails に、
+OmniAuthはRackミドルウェアとして動作する、という記述があったためです。&lt;br /&gt;
+ミドルウェアとは？アクセスを受け取るとは？どんな動きをしているのかというところを調べたかったのが動機になります。&lt;/p&gt;
+
+&lt;h2 id=&quot;rack-とは&quot;&gt;Rack とは&lt;/h2&gt;
+
+&lt;p&gt;自分で調べたところ、WEB サーバと WEB アプリケーション／フレームワーク間のインターフェースの役割を果たすライブラリ、とのことでした&lt;/p&gt;
+
+&lt;h2 id=&quot;なぜ-web-サーバと-web-アプリケーションフレームワーク間のインターフェースの役割を果たすライブラリがあるとうれしいのかなぜ-rack-ができたのか&quot;&gt;なぜ WEB サーバと WEB アプリケーション／フレームワーク間のインターフェースの役割を果たすライブラリがあるとうれしいのか、なぜ Rack ができたのか&lt;/h2&gt;
+
+&lt;p&gt;参考にした &lt;a href=&quot;https://gihyo.jp/dev/serial/01/ruby/0023&quot;&gt;URL&lt;/a&gt; に次のような経緯が書かれてありました。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;WSGI という、Python のための Web サーバと Web アプリケーション/フレームワーク間の標準インターフェースを定める仕様があり、Rack はこの WSGI に影響されて開発された&lt;/li&gt;
+  &lt;li&gt;各フレームワークの実装は特定の Web サーバに依存していることが多く，使用したいフレームワークの為に環境を制限されるということがあったため、WSGI という標準インターフェイスを定める仕様が提唱された&lt;/li&gt;
+  &lt;li&gt;様々な Web サーバやフレームワークが開発されても，双方が Rack を使用してインターフェース部分を実装していさえすれば、サーバとアプリケーションの組み合わせを気にしなくてよくなる&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;という経緯とうれしい理由があるようです。&lt;/p&gt;
+
+&lt;p&gt;フィヨルドブートキャンプのプラクティスでも出てくる Sinatora や Ruby on Rails でもこの Rack は使われているようです。&lt;/p&gt;
+
+&lt;p&gt;というわけでさっそく触ってみます。&lt;/p&gt;
+
+&lt;p&gt;まずは Rack でアプリケーションを作ってみて、インターフェイスに触れてみます。&lt;br /&gt;
+Rack のアプリケーションとしてはスライドに書かれている最低限 3つのことを満たせばよいそうです。&lt;/p&gt;
+
+&lt;p&gt;はいできました。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/ot0m1/sibatora&quot;&gt;https://github.com/ot0m1/sibatora&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;GET リクエストでフォームを描画して、POST でフォームに書かれた内容を受け取って表示するというものです。&lt;/p&gt;
+
+&lt;p&gt;shibatora という名称は Sinatra から来ています。&lt;br /&gt;
+当初 Sinatra をモチーフにルーティングができるウェブアプリケーションフレームワークを作ろうとしていたんですが、ミドルウェアの動きを見たいのが今回の目的なので、あんまり複雑なことをやっても本題からずれるなと思って上記のような簡単な挙動のアプリケーションにしました。その時の名残で名前だけ引き継いでいます。&lt;/p&gt;
+
+&lt;p&gt;Rack が色々やってくれるので Web サーバのことを書かなくても、&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rackup&lt;/code&gt; すれば自動でサーバを起動して、ブラウザでアクセスできるようにしてくれます。&lt;br /&gt;
+Sinatra や Ruby on Rails を起動させるのと同じ仕様感でした。&lt;/p&gt;
+
+&lt;p&gt;ここで確かに Shinatra や Ruby on Rails も Rack が使われており、アプリケーションはサーバのことを意識しなくてよいということなのかなということを感じました。&lt;/p&gt;
+
+&lt;h2 id=&quot;さらに-rack-でミドルウェア的なものも作ってみる&quot;&gt;さらに Rack でミドルウェア的なものも作ってみる&lt;/h2&gt;
+
+&lt;p&gt;できました。&lt;/p&gt;
+
+&lt;p&gt;冒頭でお話した OmniAuth と同じように、サーバとアプリケーションの中間に入って振る舞ってもらうようなものを作ります。&lt;/p&gt;
+
+&lt;p&gt;というわけで、ウェブアプリケーションフレームじゃないほうの WAF（ウェブアプリケーションファイアウォール）を作ってみました。
+shibatora_waf.rb というファイルを追加しています。さっきのアプリケーションのフォームに URL が書き込まれたら警告文とステータスコード 403 を返すようにようにするというものです。&lt;/p&gt;
+
+&lt;p&gt;サーバーが動いているので &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;curl&lt;/code&gt; がたたけるため、このようにコマンドラインでも確認できます。&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;-&amp;gt; %  curl http://127.0.0.1:9292/ &lt;span class=&quot;nt&quot;&gt;-X&lt;/span&gt; POST &lt;span class=&quot;nt&quot;&gt;-d&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'hello'&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-i&lt;/span&gt;
+HTTP/1.1 200 OK
+Content-Type: text/html&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;charset&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;utf-8
+Content-Length: 31
+
+&amp;lt;html&amp;gt;&amp;lt;body&amp;gt;hello&amp;lt;/body&amp;gt;&amp;lt;/html&amp;gt;%
+
+-&amp;gt; % curl http://127.0.0.1:9292/ &lt;span class=&quot;nt&quot;&gt;-X&lt;/span&gt; POST &lt;span class=&quot;nt&quot;&gt;-d&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'https://example.com'&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-i&lt;/span&gt;
+HTTP/1.1 403 Forbidden
+Content-Type: text/html&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;charset&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;utf-8
+Content-Length: 68
+
+&amp;lt;html&amp;gt;&amp;lt;body&amp;gt;URLを含む文章は投稿できません&amp;lt;/body&amp;gt;&amp;lt;/html&amp;gt;%
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;このように、ミドルウェアとして動いていることが確認できます。
+shibatora_waf.rb がミドルウェアとして振る舞ってくれ、サーバとアプリケーションの間の通信に割り込んでいるということがわかります。&lt;/p&gt;
+
+&lt;p&gt;コードを書く側は、アプリケーション層だけを意識しておけばよく、その下の層において Rack がいい感じに HTTP のレスポンスを操作してくれています。&lt;/p&gt;
+
+&lt;p&gt;というわけで冒頭の OmniAuth の振る舞いをなんとなくイメージできました。&lt;/p&gt;</content><author><name>otomi</name></author><category term="blog" /><category term="ruby" /><category term="fjord" /><summary type="html">フィヨルドブートキャンプのライトニングトーク会に先日参加し、Rack について話したのでスライドと学んで得た内容を書く。</summary></entry><entry><title type="html">はてなブログからエクスポートしたファイルを jeykll で読み込めるマークダウンに変換するスクリプト書いた</title><link href="http://localhost:4000/created-a-migration-script/" rel="alternate" type="text/html" title="はてなブログからエクスポートしたファイルを jeykll で読み込めるマークダウンに変換するスクリプト書いた" /><published>2021-04-16T00:00:00+09:00</published><updated>2021-04-16T00:00:00+09:00</updated><id>http://localhost:4000/created-a-migration-script</id><content type="html" xml:base="http://localhost:4000/created-a-migration-script/">&lt;p&gt;&lt;a href=&quot;https://blog.otomi.world/my-forst-jekyll/&quot;&gt;昨日&lt;/a&gt;書いたように、はてなブログから jeykll に移行した。&lt;/p&gt;
+
+&lt;p&gt;はてなブログで書いていた記事を移す際に、ある程度自動化できたのでやったこと書く。&lt;/p&gt;
+
+&lt;!-- more --&gt;
+
+&lt;p&gt;はてなブログは以下の手順で記事をエクスポートできる。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://help.hatenablog.com/entry/export&quot;&gt;記事データをエクスポート（バックアップ）する&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;エクスポートされた記事は Movable Type 形式のブログデータらしいのだが、jeykll はそのままだと記事として読み込めないぽいので、各記事毎にファイルを分割するスクリプトを Ruby で書いた。&lt;/p&gt;
+
+&lt;p&gt;コードは GitHub に置いている。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/ot0m1/hatena-blog-to-jekyll&quot;&gt;https://github.com/ot0m1/hatena-blog-to-jekyll&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;1つのテキストファイルを記事毎のマークダウンファイルに分割して、そのまま jeykll の _posts ディレクトリに放り込めるようにした。&lt;/p&gt;
+
+&lt;h1 id=&quot;やったこと&quot;&gt;やったこと&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;1つのテキストファイルを記事毎のマークダウンファイルに分割&lt;/li&gt;
+  &lt;li&gt;記事を分割して配列に格納
+    &lt;ul&gt;
+      &lt;li&gt;正規表現で split&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;分割した記事のメタ情報と本文をそれぞれヘッダーとボディとして hash で持つ&lt;/li&gt;
+  &lt;li&gt;ヘッダーを jeykll の形式に変換&lt;/li&gt;
+  &lt;li&gt;ボディの html の構文をマークダウン形式に変換
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;https://github.com/xijo/reverse_markdown&quot;&gt;reverse_markdown&lt;/a&gt; ライブラリを利用させてもらった&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;記事毎にマークダウンファイルとして書き出す&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;やってみて&quot;&gt;やってみて&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;jeykll で記事として扱ってもらえるファイルの内容が不明だったので、変換の最適化ができなかった
+    &lt;ul&gt;
+      &lt;li&gt;書き出したファイルを _posts ディレクトリに放り込んでも、タイトルがうまく反映しなかったりページングできなかったりした&lt;/li&gt;
+      &lt;li&gt;jeykll 側のパーマリンクの設定などで対応できそうだったが、そこまで調べる元気がなく結局手作業での修正が発生した&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;記事毎にマークダウンファイルを作るのはできたので、手作業は発生はしたが大幅に移行する時間は短縮できた
+    &lt;ul&gt;
+      &lt;li&gt;自分は20記事くらいだったが、100記事超えるとかなってくるともっと時間短縮が効いてくると思う&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;まとめ&quot;&gt;まとめ&lt;/h1&gt;
+&lt;p&gt;現実に起こっている課題を Ruby で解決することができたのがなによりの収穫でした。&lt;/p&gt;</content><author><name>otomi</name></author><category term="blog" /><category term="ruby" /><summary type="html">昨日書いたように、はてなブログから jeykll に移行した。 はてなブログで書いていた記事を移す際に、ある程度自動化できたのでやったこと書く。</summary></entry><entry><title type="html">ブログを Jekyll に移行してみた</title><link href="http://localhost:4000/my-forst-jekyll/" rel="alternate" type="text/html" title="ブログを Jekyll に移行してみた" /><published>2021-04-15T20:54:09+09:00</published><updated>2021-04-15T20:54:09+09:00</updated><id>http://localhost:4000/my-forst-jekyll</id><content type="html" xml:base="http://localhost:4000/my-forst-jekyll/">&lt;p&gt;ブログを Jekyll に移行してみた。
+&lt;!-- more --&gt;
+&lt;br /&gt;
+めちゃめちゃ苦戦しました。&lt;/p&gt;
+
+&lt;p&gt;今まではてなブログでやっていたブログを Jekyll に移行しました。
+移行した理由は、&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;独自ドメインでブログを運営したかった&lt;/li&gt;
+  &lt;li&gt;はてなブログだと独自ドメインを利用するために月約 1,000 円くらいのプロプランに変更しないといけなかった&lt;/li&gt;
+  &lt;li&gt;独自ドメインにするのに月約 1,000 円は高いなぁと思っていた
+    &lt;ul&gt;
+      &lt;li&gt;プロじゃないと広告が消せないのもちょっといやだった&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;ずっと静的サイトジェネレータをやってみたかった&lt;/li&gt;
+  &lt;li&gt;今 Ruby を勉強しているので Ruby 製のものを使うことにした&lt;/li&gt;
+  &lt;li&gt;GitHub Pages もやってみたかった&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;というもの。&lt;/p&gt;
+
+&lt;p&gt;というわけで、Jekyll でブログを作って、独自ドメインで GitHub Pages でホストすることにした。&lt;/p&gt;
+
+&lt;p&gt;GitHub Pages でサイトを作成した際のデフォルトのテーマの Jekyll のサイトなら GitHub のサイトに書かれている手順通りに進めるだけですぐできたが、その後テーマを変更しようとしたところでつまずきまくった。&lt;/p&gt;
+
+&lt;p&gt;Jekyll のテーマの変更方法は複数あるようで、最初はすぐできそうな gem 形式などをやっていたがうまくいかず。&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;bundle exec jekyll serve&lt;/code&gt; した後にログが流れるのでそれを見るに、変更後のテーマで必要なファイルがレンダリングできないというような内容であったが、どうやってレンダリングさせられるのかが分からなかった。&lt;/p&gt;
+
+&lt;p&gt;なので、変更したいテーマをリポジトリからフォークしてきて、そのファイルを編集するという方法で対応した。&lt;/p&gt;
+
+&lt;p&gt;フォークしたテーマにはなぜか Gemfile が存在しておらず、bundle ができないのでデフォルトテーマの Gemfile の一部をコピペして &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;bundle install&lt;/code&gt; してなんとか変更できた。&lt;/p&gt;</content><author><name>otomi</name></author><category term="blog" /><summary type="html">ブログを Jekyll に移行してみた。</summary></entry><entry><title type="html">ここ数日プラクティスを進める手が捗らないので理由を考えた</title><link href="http://localhost:4000/I-figured-out-why/" rel="alternate" type="text/html" title="ここ数日プラクティスを進める手が捗らないので理由を考えた" /><published>2021-02-04T00:00:00+09:00</published><updated>2021-02-04T00:00:00+09:00</updated><id>http://localhost:4000/I-figured-out-why</id><content type="html" xml:base="http://localhost:4000/I-figured-out-why/">&lt;p&gt;相変わらず&lt;a href=&quot;http://d.hatena.ne.jp/keyword/%A5%D5%A5%A3%A5%E8%A5%EB%A5%C9&quot;&gt;フィヨルド&lt;/a&gt;ブートキャンプを粛々と進めているのだが、「&lt;a href=&quot;http://d.hatena.ne.jp/keyword/Rails&quot;&gt;Rails&lt;/a&gt; の &lt;a href=&quot;http://d.hatena.ne.jp/keyword/i18n&quot;&gt;i18n&lt;/a&gt; を理解する」の課題に入って手が動かないな〜と感じて、なぜかを考えてみた。&lt;/p&gt;
+
+&lt;!-- more --&gt;
+&lt;ul&gt;
+  &lt;li&gt;プ&lt;a href=&quot;http://d.hatena.ne.jp/keyword/%A5%E9%A5%AF&quot;&gt;ラク&lt;/a&gt;ティスを一気に終わらせるような進め方を今までしてきていた&lt;/li&gt;
+  &lt;li&gt;一気に終わらせるためのステップはこれまでのプ&lt;a href=&quot;http://d.hatena.ne.jp/keyword/%A5%E9%A5%AF&quot;&gt;ラク&lt;/a&gt;ティスであれば割とイメージできており、実際その通りに手が動いていた&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://d.hatena.ne.jp/keyword/Rails&quot;&gt;Rails&lt;/a&gt; の &lt;a href=&quot;http://d.hatena.ne.jp/keyword/i18n&quot;&gt;i18n&lt;/a&gt; は完全に新しく触れる内容で、プ&lt;a href=&quot;http://d.hatena.ne.jp/keyword/%A5%E9%A5%AF&quot;&gt;ラク&lt;/a&gt;ティスの終了条件をどうやって完成させられるかのイメージが全くできなかった&lt;/li&gt;
+  &lt;li&gt;完了までに何をやればいいのかが検討もつかないのに、一気に終わらせてやろうと考えてしまって、ゴールが途方もなく遠く感じられて最初の一歩が踏み出せない状態になっている&lt;/li&gt;
+  &lt;li&gt;本を読む系のプ&lt;a href=&quot;http://d.hatena.ne.jp/keyword/%A5%E9%A5%AF&quot;&gt;ラク&lt;/a&gt;ティスが自分がもやもやするのも一気に終わらせるのが難しい性質のものであるのも大いに関係ありそう&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;ということが理由かなーと考えた。&lt;/p&gt;
+
+&lt;p&gt;理想を高くしすぎていて現実とのギャップに直面して手が動かない状態になっていたので、まずは思いっきりハードル低くして、やることを細かく分解する。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;参考資料を見て &lt;a href=&quot;http://d.hatena.ne.jp/keyword/i18n&quot;&gt;i18n&lt;/a&gt; をなんとなく分かった気になってみる&lt;/li&gt;
+  &lt;li&gt;ちゃんと理解しようと意気込まない&lt;/li&gt;
+  &lt;li&gt;写経してみてひとまず動かしてみる&lt;/li&gt;
+  &lt;li&gt;動けば 💯 くらいの気持ちで。使われている仕組みとメソッドか全部把握しようとしない&lt;/li&gt;
+  &lt;li&gt;一通り動かせたら必須要件 &lt;strong&gt;だけ&lt;/strong&gt; 満たす&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;くらいまでハードル低くして進めよう。&lt;/p&gt;
+
+&lt;p&gt;ちょっとでもゴールまでの見通しが建たなくなると、とたんにやる気を無くす自分の脳みそに呆れますね…！ おじさんになるまで生きてきて、自分の意識と自分の脳みそは決して共闘関係にはないということが実感できてきた。&lt;/p&gt;</content><author><name>otomi</name></author><category term="blog" /><summary type="html">相変わらずフィヨルドブートキャンプを粛々と進めているのだが、「Rails の i18n を理解する」の課題に入って手が動かないな〜と感じて、なぜかを考えてみた。</summary></entry><entry><title type="html">prepared statement を利用してSQLインジェクションを回避する</title><link href="http://localhost:4000/avoiding-sql-Injection/" rel="alternate" type="text/html" title="prepared statement を利用してSQLインジェクションを回避する" /><published>2021-01-24T00:00:00+09:00</published><updated>2021-01-24T00:00:00+09:00</updated><id>http://localhost:4000/avoiding-sql-Injection</id><content type="html" xml:base="http://localhost:4000/avoiding-sql-Injection/">&lt;p&gt;&lt;a href=&quot;https://akkkky.hatenablog.jp/entry/2021/01/20/001614&quot;&gt;前回の記事&lt;/a&gt;で &lt;a href=&quot;http://d.hatena.ne.jp/keyword/ruby&quot;&gt;ruby&lt;/a&gt;-pg から &lt;a href=&quot;http://d.hatena.ne.jp/keyword/CRUD&quot;&gt;CRUD&lt;/a&gt; するための方法を書いたが、引数でメモの内容を受け取ってそれをクエリ文字列に結合していたので&lt;a href=&quot;http://d.hatena.ne.jp/keyword/SQL%A5%A4%A5%F3%A5%B8%A5%A7%A5%AF%A5%B7%A5%E7%A5%F3&quot;&gt;SQLインジェクション&lt;/a&gt;の危険性があった。&lt;/p&gt;
+
+&lt;p&gt;そのため prepared statement を利用するように変更した。&lt;/p&gt;
+
+&lt;!-- more --&gt;
+
+&lt;p&gt;まず本当に文字列結合だと&lt;a href=&quot;http://d.hatena.ne.jp/keyword/SQL%A5%A4%A5%F3%A5%B8%A5%A7%A5%AF%A5%B7%A5%E7%A5%F3&quot;&gt;SQLインジェクション&lt;/a&gt;が実行可能なのか、 prepared statement を利用すれば回避できるのかを検証。&lt;/p&gt;
+
+&lt;p&gt;参考サイト：&lt;a href=&quot;https://www.jpcert.or.jp/java-rules/ids00-j.html&quot;&gt;https://www.jpcert.or.jp/java-rules/ids00-j.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;予めこういうテーブルを作っておく。&lt;/p&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;postgres&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=#&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;CREATE&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;TABLE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;injection_test&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;id&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;SERIAL&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user_name&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;TEXT&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;NOT&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;NULL&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;password&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;TEXT&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;NOT&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;NULL&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;CREATE&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;TABLE&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;適当にユーザーを追加。 本来はパスワードを平文で保存することはないがテストなのでその辺りは割愛。&lt;/p&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;postgres&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=#&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;injection_test&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+ &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user_name&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;  &lt;span class=&quot;n&quot;&gt;password&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;----+------------+------------&lt;/span&gt;
+  &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;ドラえもん&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;doradora&lt;/span&gt;
+  &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;のび太&lt;/span&gt;     &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;nobinobi&lt;/span&gt;
+  &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;スネ夫&lt;/span&gt;     &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sunesune&lt;/span&gt;
+  &lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;しずちゃん&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;shizushizu&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;rows&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;こういうコードを書いて…&lt;/p&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'pg'&lt;/span&gt;
+
+&lt;span class=&quot;no&quot;&gt;TABLE_NAME&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'injection_test'&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;PG&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;connect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;dbname: &lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'postgres'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# 文字列結合でクエリを実行しちゃってるユーザー認証&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;validate_authorization_not_prepared&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;password&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;# ユーザー名とパスワードが両方一致するかを確認&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;query&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;SELECT * FROM &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;TABLE_NAME&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; WHERE user_name = '&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;user_name&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;' AND password = '&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;password&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;'&quot;&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;result&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;exec&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;query&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;cmd_tuples&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'ログインに失敗しました。'&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;row&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;ログインに成功しました。ユーザー情報【id】&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;row&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;【user_name】&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;row&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'user_name'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;認証チェック。&lt;/p&gt;
+
+&lt;p&gt;存在するユーザーでかつパスワードも正しければユーザー情報を返し、ユーザー名かパスワードのどちらかが一致しなければ認証に失敗する。&lt;/p&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;validate_authorization_not_prepared&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'ドラえもん'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'doradora'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# =&amp;gt; ログインに成功しました。ユーザー情報【id】1【user_name】ドラえもん&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;validate_authorization_not_prepared&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'のび太'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'nobinobi'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# =&amp;gt; ログインに成功しました。ユーザー情報【id】2【user_name】のび太&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;validate_authorization_not_prepared&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'ジャイアン'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'doradora'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# =&amp;gt; ログインに失敗しました。&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;validate_authorization_not_prepared&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'ドラえもん'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'jaijai'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# =&amp;gt; ログインに失敗しました。&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;この段階では意図した挙動ができている。&lt;/p&gt;
+
+&lt;p&gt;次に&lt;a href=&quot;http://d.hatena.ne.jp/keyword/SQL%A5%A4%A5%F3%A5%B8%A5%A7%A5%AF%A5%B7%A5%E7%A5%F3&quot;&gt;SQLインジェクション&lt;/a&gt;を実行してみる。&lt;/p&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;validate_authorization_not_prepared&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;sx&quot;&gt;%q[ドラえもん' OR '1'='1]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'どうせ認証通るからパスワードなんでもいいよね'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# =&amp;gt; ログインに成功しました。ユーザー情報【id】1【user_name】ドラえもん&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;validate_authorization_not_prepared&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;sx&quot;&gt;%q[のび太' OR '1'='1]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'ほんとはジャイアンです'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# =&amp;gt; ログインに成功しました。ユーザー情報【id】2【user_name】のび太&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;認証通っちゃった〜！&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;em&gt;実在する正規のユーザ名であれば、この SELECT 文は validuser のレコードをテーブルから選択する。username=’validuser’ の評価は真となるので、パスワードはチェックされない。つまり OR 以降の部分は評価されないということである。OR 以降の部分が &lt;a href=&quot;http://d.hatena.ne.jp/keyword/SQL&quot;&gt;SQL&lt;/a&gt; 言語の式として文法的に正しければ、攻撃者は validuser のレコードへのアクセスを許可される。&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;最悪なのがこの攻撃。&lt;/p&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;validate_authorization_not_prepared&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'ジャイアン'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;sx&quot;&gt;%q[' OR '1'='1]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# =&amp;gt; ログインに成功しました。ユーザー情報【id】1【user_name】ドラえもん&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# =&amp;gt; ログインに成功しました。ユーザー情報【id】2【user_name】のび太&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# =&amp;gt; ログインに成功しました。ユーザー情報【id】3【user_name】スネ夫&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# =&amp;gt; ログインに成功しました。ユーザー情報【id】4【user_name】しずちゃん&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;なんと全ユーザーの情報が取れる。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;em&gt;‘1’=’1’ は常に真なので、このクエリからはテーブル中のすべての行が出力される。ユーザ名とパスワードの検査は行われず、攻撃者は正しいユーザIDやパスワードを知らなくてもログインできてしまう。&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;なのでクエリを文字列結合で実行できるようにちゃうと&lt;a href=&quot;http://d.hatena.ne.jp/keyword/SQL%A5%A4%A5%F3%A5%B8%A5%A7%A5%AF%A5%B7%A5%E7%A5%F3&quot;&gt;SQLインジェクション&lt;/a&gt;が簡単に行えてしまうことが分かった。&lt;/p&gt;
+
+&lt;p&gt;次に prepared statement を利用した認証方式。&lt;/p&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;# prepared statement&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;validate_authorization_prepared&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;password&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;query&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;SELECT * FROM &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;TABLE_NAME&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; WHERE user_name = $1 AND password = $2&quot;&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'validate_authorization'&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;delete_if_exist&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;prepare&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;query&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;result&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;exec_prepared&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;user_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;password&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;cmd_tuples&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'ログインに失敗しました。'&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;row&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;ログインに成功しました。ユーザー情報【id】&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;row&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;【user_name】&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;row&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'user_name'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;prepare_exist?&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;tuple&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;exec&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;SELECT * FROM pg_prepared_statements WHERE name='&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;'&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;cmd_tuples&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;tuple&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;positive?&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;delete_if_exist&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;exec&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;DEALLOCATE &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;prepare_exist?&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;validate_authorization_prepared&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'ドラえもん'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'doradora'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# =&amp;gt; ログインに成功しました。ユーザー情報【id】1【user_name】ドラえもん&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;validate_authorization_prepared&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'ジャイアン'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'jaijai'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# =&amp;gt; ログインに失敗しました。&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;validate_authorization_prepared&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;sx&quot;&gt;%q[ドラえもん' OR '1'='1]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'hoge'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# =&amp;gt; ログインに失敗しました。&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;validate_authorization_prepared&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'ジャイアン'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;sx&quot;&gt;%q[' OR '1'='1]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# =&amp;gt; ログインに失敗しました。&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;ちゃんとユーザー名とパスワードが一致する場合のみ認証を通せていることが分かる。&lt;/p&gt;
+
+&lt;p&gt;というわけで上記を踏まえた、&lt;a href=&quot;http://d.hatena.ne.jp/keyword/ruby&quot;&gt;ruby&lt;/a&gt;-pg でのセキュアな &lt;a href=&quot;http://d.hatena.ne.jp/keyword/CRUD&quot;&gt;CRUD&lt;/a&gt; は以下のようになる。&lt;/p&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CrudController&lt;/span&gt;
+  &lt;span class=&quot;no&quot;&gt;DB_NAME&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'任意のデータベース名'&lt;/span&gt;
+  &lt;span class=&quot;no&quot;&gt;TABLE_NAME&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'任意のテーブル名'&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;initialize&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@connection&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;PG&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;connect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;dbname: &lt;/span&gt;&lt;span class=&quot;no&quot;&gt;DB_NAME&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;create_table&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;unless&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;table_exist?&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;read_all_note&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;read_all_query&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;SELECT * FROM &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;TABLE_NAME&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'read_all_note'&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;delete_if_exist&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;prepare&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;read_all_query&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;results&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;vi&quot;&gt;@connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;exec_prepared&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;map&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;result&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;results&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;sort_by&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;values_at&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;reverse&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;read_note&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;read_note_query&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;SELECT * FROM &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;TABLE_NAME&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; WHERE id = $1&quot;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'read_note'&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;delete_if_exist&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;prepare&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;read_note_query&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;exec_prepared&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;create_note&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;title&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;body&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;create_note_query&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;INSERT INTO &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;TABLE_NAME&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; (title, body) VALUES ($1, $2) RETURNING id&quot;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'create_note'&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;delete_if_exist&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;prepare&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;create_note_query&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;exec_prepared&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;title&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;body&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;update_note&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;title&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;body&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;update_note_query&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;UPDATE &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;TABLE_NAME&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; SET (title, body) = ($2, $3) WHERE id = $1&quot;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'update_note'&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;delete_if_exist&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;prepare&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;update_note_query&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;exec_prepared&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;title&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;body&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;delete_note&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;delete_note_query&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;DELETE FROM &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;TABLE_NAME&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; WHERE id = $1&quot;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'delete_note'&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;delete_if_exist&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;prepare&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;delete_note_query&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;exec_prepared&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;id_exist?&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;sr&quot;&gt;/^[0-9]+$/&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;match?&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;exist_id_query&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;SELECT * FROM &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;TABLE_NAME&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; WHERE id = $1&quot;&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'id_exist'&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;delete_if_exist&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;vi&quot;&gt;@connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;prepare&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;exist_id_query&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;vi&quot;&gt;@connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;exec_prepared&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;cmd_tuples&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;
+      &lt;span class=&quot;kp&quot;&gt;false&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+  &lt;span class=&quot;kp&quot;&gt;private&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;prepare_exist?&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;tuple&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;vi&quot;&gt;@connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;exec&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;SELECT * FROM pg_prepared_statements WHERE name='&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;'&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;cmd_tuples&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;tuple&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;positive?&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;delete_if_exist&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;exec&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;DEALLOCATE &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;prepare_exist?&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;table_exist?&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;exist_table_query&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;SELECT table_name FROM information_schema.tables WHERE table_name = '&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;TABLE_NAME&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;'&quot;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'table_exist'&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;delete_if_exist&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;prepare&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;exist_table_query&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;exec_prepared&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;cmd_tuples&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;create_table&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;create_table_query&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;CREATE TABLE &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;TABLE_NAME&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; (id SERIAL, title TEXT NOT NULL, body TEXT)&quot;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'create_table'&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;delete_if_exist&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;prepare&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;create_table_query&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;exec_prepared&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>otomi</name></author><category term="blog" /><summary type="html">前回の記事で ruby-pg から CRUD するための方法を書いたが、引数でメモの内容を受け取ってそれをクエリ文字列に結合していたのでSQLインジェクションの危険性があった。 そのため prepared statement を利用するように変更した。</summary></entry><entry><title type="html">Sinatra で Webアプリケーションを作った際の気付き</title><link href="http://localhost:4000/created-web-application/" rel="alternate" type="text/html" title="Sinatra で Webアプリケーションを作った際の気付き" /><published>2021-01-23T00:00:00+09:00</published><updated>2021-01-23T00:00:00+09:00</updated><id>http://localhost:4000/created-web-application</id><content type="html" xml:base="http://localhost:4000/created-web-application/">&lt;p&gt;&lt;a href=&quot;https://akkkky.hatenablog.jp/entry/2021/01/16/234329&quot;&gt;Sinatra で Webアプリケーションを作った - tmp/log&lt;/a&gt; の続き。 レビューいただいた点を修正しての気付きなど。&lt;/p&gt;
+
+&lt;!-- more --&gt;
+
+&lt;p&gt;レビューいただいた点について修正にあたって以下の学びがあった。&lt;/p&gt;
+
+&lt;h2 id=&quot;html-エスケープしたときに表示が崩れる&quot;&gt;HTML エスケープしたときに表示が崩れる&lt;/h2&gt;
+
+&lt;p&gt;これは当初エスケープに利用している &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Rack::Utils.escape_html&lt;/code&gt; 側の出力に原因があると考えていた。そこでどんな処理をしているのかソースを見に行ったら、シンプルに記号を置換しているものであった。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/rack/rack/blob/a05f8d56f9ac4da14dddb8f312a3b43644f73397/lib/rack/utils.rb#L158&quot;&gt;https://github.com/rack/rack/blob/a05f8d56f9ac4da14dddb8f312a3b43644f73397/lib/rack/utils.rb#L158&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;実際のコード&lt;/p&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;no&quot;&gt;ESCAPE_HTML&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;&amp;amp;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&amp;amp;amp;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;&amp;lt;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&amp;amp;lt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;&amp;gt;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&amp;amp;gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;'&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&amp;amp;#x27;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;s1&quot;&gt;'&quot;'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&amp;amp;quot;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;/&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&amp;amp;#x2F;&quot;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;no&quot;&gt;ESCAPE_HTML_PATTERN&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Regexp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;union&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;ESCAPE_HTML&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;keys&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# Escape ampersands, brackets and quotes to their HTML/XML entities.&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;escape_html&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;to_s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;gsub&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;ESCAPE_HTML_PATTERN&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;ESCAPE_HTML&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;なので出力される文字列が原因ではないということでもうちょっと自分の実装を追っていたら、単に&lt;a href=&quot;http://d.hatena.ne.jp/keyword/%A5%A8%A5%B9&quot;&gt;エス&lt;/a&gt;ケープした場合に文字列が長くなりすぎ、HTML の要素からはみ出てしまっているだけだった…。&lt;/p&gt;
+
+&lt;p&gt;スタイルで &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;overflow&lt;/code&gt; を適切に設定していなかったことが原因。幸い15分くらいで原因に思い当たったので良かった。原因が &lt;a href=&quot;http://d.hatena.ne.jp/keyword/Ruby&quot;&gt;Ruby&lt;/a&gt; のコード側にあると思いこんでいたらドハマリするところだった…。&lt;/p&gt;
+
+&lt;h2 id=&quot;表示に関するコードはコントローラーに該当するファイルに書かない&quot;&gt;表示に関するコードはコントローラーに該当するファイルに書かない&lt;/h2&gt;
+
+&lt;p&gt;コントローラーに該当する処理を書いていたファイル内で、一緒に HTML タグを操作していた。 View と Model で担当を分担するため書く場所は分けた方が良い。&lt;a href=&quot;http://d.hatena.ne.jp/keyword/MVC&quot;&gt;MVC&lt;/a&gt; モデルを意識した実装をする。&lt;/p&gt;
+
+&lt;h2 id=&quot;readme-に-ruby-の推奨バージョンを自然言語で書いていた&quot;&gt;README に &lt;a href=&quot;http://d.hatena.ne.jp/keyword/Ruby&quot;&gt;Ruby&lt;/a&gt; の推奨バージョンを&lt;a href=&quot;http://d.hatena.ne.jp/keyword/%BC%AB%C1%B3%B8%C0%B8%EC&quot;&gt;自然言語&lt;/a&gt;で書いていた&lt;/h2&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.ruby-version&lt;/code&gt; をコミットしておくとよい。 確かに推奨バージョンを書いて利用者に人力でバージョン指定してもらうより rbenv にやってもらった方が全然いい…！&lt;/p&gt;</content><author><name>otomi</name></author><category term="blog" /><summary type="html">Sinatra で Webアプリケーションを作った - tmp/log の続き。 レビューいただいた点を修正しての気付きなど。</summary></entry><entry><title type="html">ruby-pg で CRUD する</title><link href="http://localhost:4000/crud-with-ruby-pg/" rel="alternate" type="text/html" title="ruby-pg で CRUD する" /><published>2021-01-20T00:00:00+09:00</published><updated>2021-01-20T00:00:00+09:00</updated><id>http://localhost:4000/crud-with-ruby-pg</id><content type="html" xml:base="http://localhost:4000/crud-with-ruby-pg/">&lt;p&gt;&lt;a href=&quot;http://localhost:4000/trying-to-touch-ruby-pg/&quot;&gt;ruby-pg を触ってみる&lt;/a&gt;の続き。&lt;/p&gt;
+
+&lt;!-- more --&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://localhost:4000/trying-to-touch-ruby-pg/&quot;&gt;ruby-pg を触ってみる&lt;/a&gt;の記事で以下のように書いていたが、これは今回のやりたいことのスコープから外れるのでやらない。 予め &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sinatra_db&lt;/code&gt; というデータベースが存在すること前提。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Tableできた。が、これってpostgresっていうデータベースが存在することが予め分かっているのでコネクションを張れているが、自作の&lt;a href=&quot;http://d.hatena.ne.jp/keyword/Sinatra&quot;&gt;Sinatra&lt;/a&gt;のWebアプリケーションをcloneしてもらって他の人のパソコン上で動かすときはデータベース名どうやって決めればいいのだろうか？&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;とりあえず CRUD ができるかの最小限のコードを書いてみる。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;このコードは&lt;a href=&quot;http://d.hatena.ne.jp/keyword/SQL%A5%A4%A5%F3%A5%B8%A5%A7%A5%AF%A5%B7%A5%E7%A5%F3&quot;&gt;SQLインジェクション&lt;/a&gt;が実行可能なので、必ず個人環境でテストするだけに留めてください。&lt;br /&gt;
+絶対に個人情報を扱っているような環境に実装するようなことはしないでください。&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;以下の記事に&lt;a href=&quot;http://d.hatena.ne.jp/keyword/SQL%A5%A4%A5%F3%A5%B8%A5%A7%A5%AF%A5%B7%A5%E7%A5%F3&quot;&gt;SQLインジェクション&lt;/a&gt;を回避できるコードを載せているのでこちらも参照ください。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://localhost:4000/avoiding-sql-Injection/&quot;&gt;prepared statement を利用してSQLインジェクションを回避する&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;👇 CRUD ができるかの最小限のコード&lt;/p&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'pg'&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# sinatra_db という DB は予め作成しておく&lt;/span&gt;
+
+&lt;span class=&quot;no&quot;&gt;DB_NAME&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'sinatra_db'&lt;/span&gt;
+&lt;span class=&quot;no&quot;&gt;TABLE_NAME&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'sinatra_table'&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# コネクション作成 &lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;PG&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;connect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;dbname: &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;DB_NAME&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# table が存在するか確認&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;table_exist?&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;exist_table_query&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;SELECT table_name FROM information_schema.tables WHERE table_name = '&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;TABLE_NAME&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;'&quot;&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;exec&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;exist_table_query&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;cmd_status&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'SELECT 1'&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;?&lt;/span&gt; &lt;span class=&quot;kp&quot;&gt;true&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kp&quot;&gt;false&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# table 作成&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;create_table&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;create_table_query&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;CREATE TABLE &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;TABLE_NAME&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; (id SERIAL, title TEXT NOT NULL, body TEXT)&quot;&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;exec&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;create_table_query&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# メモの新規作成 RETURNING id で追加した id を返す&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;create_note&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;title&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;body&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;create_note_query&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;INSERT INTO &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;TABLE_NAME&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; (title, body) VALUES ('&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;title&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;', '&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;body&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;') RETURNING id&quot;&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;exec&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;create_note_query&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# メモの編集&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;update_note&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;title&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;body&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;update_note_query&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;UPDATE &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;TABLE_NAME&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; SET (title, body) = ('&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;title&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;', '&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;body&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;') WHERE id = &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;exec&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;update_note_query&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# メモの削除&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;delete_note&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;delete_note_query&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;DELETE FROM &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;TABLE_NAME&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; WHERE id = &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;exec&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;delete_note_query&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://d.hatena.ne.jp/keyword/CRUD&quot;&gt;CRUD&lt;/a&gt; の各メソッド自体はクエリをそのまま書くようなものだったので割とすぐ実装できたが、table が存在しない場合に追加するための存在確認メソッドを作成したが、table の存在確認をどのように実装するかに時間がかかった。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://d.hatena.ne.jp/keyword/PostgreSQL&quot;&gt;PostgreSQL&lt;/a&gt; や &lt;a href=&quot;http://d.hatena.ne.jp/keyword/ruby&quot;&gt;ruby&lt;/a&gt;-pg には引数で table 名を受け取って boolean で存在有無を返すようなメソッドが無いっぽかったので &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;information_schema.tables&lt;/code&gt; を使ったが、もっとスマートに書けるのかなー。 table の存在確認はググっても様々なやり方が出てくるし、色々な方法で確認できるのだろう。&lt;/p&gt;</content><author><name>otomi</name></author><category term="blog" /><summary type="html">ruby-pg を触ってみるの続き。</summary></entry><entry><title type="html">ruby-pg を触ってみる</title><link href="http://localhost:4000/trying-to-touch-ruby-pg/" rel="alternate" type="text/html" title="ruby-pg を触ってみる" /><published>2021-01-18T00:00:00+09:00</published><updated>2021-01-18T00:00:00+09:00</updated><id>http://localhost:4000/trying-to-touch-ruby-pg</id><content type="html" xml:base="http://localhost:4000/trying-to-touch-ruby-pg/">&lt;p&gt;&lt;a href=&quot;http://d.hatena.ne.jp/keyword/Sinatra&quot;&gt;Sinatra&lt;/a&gt;アプリでのデータ保存先をデータベースに変えるため、&lt;a href=&quot;https://github.com/ged/ruby-pg&quot;&gt;ruby-pg&lt;/a&gt;を触ってみる。 簡単な Ruby スクリプトを書いて「書き込み」「読み取り」「編集」「削除」の一連の操作ができるようにする。&lt;/p&gt;
+
+&lt;!-- more --&gt;
+
+&lt;p&gt;まずはTableの作成。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Ruby側&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'pg'&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;PG&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;connect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;dbname: &lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'postgres'&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;exec&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'CREATE TABLE sinatra_table (id INTEGER PRIMARY KEY, title TEXT NOT NULL, body TEXT)'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;PostgreSQL側&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ruby&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;test&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rb&lt;/span&gt; 
+&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;psql&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;U&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;aksk&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;postgres&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;psql&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;13&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;Type&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;&quot;help&quot;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;help&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;postgres&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=#&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;
+           &lt;span class=&quot;n&quot;&gt;List&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;of&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;relations&lt;/span&gt;
+ &lt;span class=&quot;k&quot;&gt;Schema&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;     &lt;span class=&quot;n&quot;&gt;Name&lt;/span&gt;      &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;Type&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;Owner&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;--------+---------------+-------+-------&lt;/span&gt;
+ &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sinatra_table&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;table&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;aksk&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;row&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;postgres&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=#&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Tableできた。が、これって&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;postgres&lt;/code&gt;っていうデータベースが存在することが予め分かっているのでコネクションを張れているが、自作の&lt;a href=&quot;http://d.hatena.ne.jp/keyword/Sinatra&quot;&gt;Sinatra&lt;/a&gt;のWebアプリケーションをcloneしてもらって他の人のパソコン上で動かすときはデータベース名どうやって決めればいいのだろうか？&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PG::Connection.new(host, port, options, tty, dbname, user, password)&lt;/code&gt; これで任意のホストへ接続できるので、自分が契約している&lt;a href=&quot;http://d.hatena.ne.jp/keyword/VPN&quot;&gt;VPN&lt;/a&gt;へコネクション張れば誰のパソコン上でも予めわかっているデータベース名で接続できるけど、そういうことじゃないよな〜…。&lt;/p&gt;</content><author><name>otomi</name></author><category term="blog" /><summary type="html">Sinatraアプリでのデータ保存先をデータベースに変えるため、ruby-pgを触ってみる。 簡単な Ruby スクリプトを書いて「書き込み」「読み取り」「編集」「削除」の一連の操作ができるようにする。</summary></entry><entry><title type="html">Sinatra で Webアプリケーションを作った</title><link href="http://localhost:4000/built-web-application-with-sinatra/" rel="alternate" type="text/html" title="Sinatra で Webアプリケーションを作った" /><published>2021-01-16T00:00:00+09:00</published><updated>2021-01-16T00:00:00+09:00</updated><id>http://localhost:4000/built-web-application-with-sinatra</id><content type="html" xml:base="http://localhost:4000/built-web-application-with-sinatra/">&lt;p&gt;1年以上ぶりの記事ですね。&lt;/p&gt;
+
+&lt;p&gt;去年の12月から&lt;a href=&quot;https://bootcamp.fjord.jp&quot;&gt;フィヨルドブートキャンプ&lt;/a&gt;に通っており、もう1年以上経ちます。 途中半年以上全然プ&lt;a href=&quot;http://d.hatena.ne.jp/keyword/%A5%E9%A5%AF&quot;&gt;ラク&lt;/a&gt;ティスをやっていないに等しいような時期があったのですが、ここ2ヶ月くらいはなんとか勉強が習慣化してきたようで連日のようにプ&lt;a href=&quot;http://d.hatena.ne.jp/keyword/%A5%E9%A5%AF&quot;&gt;ラク&lt;/a&gt;ティスを進めることができている状態です。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://d.hatena.ne.jp/keyword/%A5%D5%A5%A3%A5%E8%A5%EB%A5%C9&quot;&gt;フィヨルド&lt;/a&gt;ブートキャンプではプ&lt;a href=&quot;http://d.hatena.ne.jp/keyword/%A5%E9%A5%AF&quot;&gt;ラク&lt;/a&gt;ティスをやった日は必ず日報を書くようになっており、僕も必ず書いています。 その日報をブログにも書いて勉強の過程を公開しようしようと思いつつやれておらず、また過去にさかのぼってブログ書くのもしんどいので中途半端で唐突な始まりですが今日から本気出す。&lt;/p&gt;
+
+&lt;!-- more --&gt;
+
+&lt;p&gt;作ったアプリケーションはこれ。&lt;/p&gt;
+
+&lt;iframe src=&quot;https://hatenablog-parts.com/embed?url=https%3A%2F%2Fgithub.com%2FAkkkky%2Ffrankly-note&quot; title=&quot;Akkkky/frankly-note&quot; class=&quot;embed-card embed-webcard&quot; scrolling=&quot;no&quot; frameborder=&quot;0&quot; style=&quot;display: block; width: 100%; height: 155px; max-width: 500px; margin: 10px 0px;&quot;&gt;&lt;/iframe&gt;
+&lt;p&gt;&lt;cite class=&quot;hatena-citation&quot;&gt;&lt;a href=&quot;https://github.com/Akkkky/frankly-note&quot;&gt;github.com&lt;/a&gt;&lt;/cite&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;rest-のリソース設計は思っているより全然難しい&quot;&gt;REST のリソース設計は思っているより全然難しい&lt;/h2&gt;
+
+&lt;p&gt;提出物を作成した段階ではわりとスムーズに進められたな〜とか思っていたが、レビューをいただくと色々考慮漏れがあることが分かってきた。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;リソース名の単数形と複数形を統一する&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://d.hatena.ne.jp/keyword/URI&quot;&gt;URI&lt;/a&gt; の構造を統一する&lt;/li&gt;
+  &lt;li&gt;実際にブラウザからアクセスするときの URL を考える
+    &lt;ul&gt;
+      &lt;li&gt;ブラウザからアクセスしたときに分かりにくいリソース表現になっていないか&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;実際にブラウザからアクセスするときに区別できない URL になっていないか
+    &lt;ul&gt;
+      &lt;li&gt;異なるリソースを同じ URL で表現しようとしていないか&lt;/li&gt;
+      &lt;li&gt;安易に id だけでリソースを区別しようとするとブラウザから見たときに人間が区別できない&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;ds_store-に困らせられた&quot;&gt;.DS_Store に困らせられた&lt;/h2&gt;
+
+&lt;p&gt;データベースで管理せずにファイルにデータを保存する関係でファイル操作を行うためか、今までは特に気にしていなかった .DS_Store ファイルがいつの間にかできており、うっかりリモー&lt;a href=&quot;http://d.hatena.ne.jp/keyword/%A5%C8%A5%EA%A5%DD%A5%B8&quot;&gt;トリポジ&lt;/a&gt;トリへ追加してしまうことがあった。&lt;/p&gt;
+
+&lt;p&gt;今までの経験から安易に &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rm&lt;/code&gt; したり、リモー&lt;a href=&quot;http://d.hatena.ne.jp/keyword/%A5%C8%A5%EA%A5%DD%A5%B8&quot;&gt;トリポジ&lt;/a&gt;トリ側で消しちゃうと差分に困るのでしっかり &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;git rm&lt;/code&gt; できたのは良かった。 .gitignore に追記することでリモー&lt;a href=&quot;http://d.hatena.ne.jp/keyword/%A5%C8%A5%EA%A5%DD%A5%B8&quot;&gt;トリポジ&lt;/a&gt;トリに追加されることは回避できる。&lt;/p&gt;
+
+&lt;h2 id=&quot;空のディレクトリは-git-add-できない&quot;&gt;空の&lt;a href=&quot;http://d.hatena.ne.jp/keyword/%A5%C7%A5%A3%A5%EC%A5%AF%A5%C8&quot;&gt;ディレクト&lt;/a&gt;リは &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;git add&lt;/code&gt; できない&lt;/h2&gt;
+
+&lt;p&gt;メモを格納する空の&lt;a href=&quot;http://d.hatena.ne.jp/keyword/%A5%C7%A5%A3%A5%EC%A5%AF%A5%C8&quot;&gt;ディレクト&lt;/a&gt;リを作成していたのだが、リモー&lt;a href=&quot;http://d.hatena.ne.jp/keyword/%A5%C8%A5%EA%A5%DD%A5%B8&quot;&gt;トリポジ&lt;/a&gt;トリ側に反映せずにちょっと困った。&lt;/p&gt;
+
+&lt;p&gt;そのような場合は .gitkeep ファイルを置いたりするらしい。&lt;a href=&quot;https://qiita.com/tommy_aka_jps/items/b2ae85cbeab77e12a925&quot;&gt;https://qiita.com/tommy_aka_jps/items/b2ae85cbeab77e12a925&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;これで無事にリモー&lt;a href=&quot;http://d.hatena.ne.jp/keyword/%A5%C8%A5%EA%A5%DD%A5%B8&quot;&gt;トリポジ&lt;/a&gt;トリへ空&lt;a href=&quot;http://d.hatena.ne.jp/keyword/%A5%C7%A5%A3%A5%EC%A5%AF%A5%C8&quot;&gt;ディレクト&lt;/a&gt;リを追加できた。&lt;/p&gt;
+
+&lt;h2 id=&quot;rubocop-の言うことをちゃんと聞く&quot;&gt;Rubocop の言うことをちゃんと聞く&lt;/h2&gt;
+
+&lt;p&gt;提出直前になって rubocop を通してみたときにセキュリティ関連の警告が出たが、これはデータベースを利用せずにメモをファイルで管理しているために表示されるものであり、今回の実装ではしょうがないと思いこんでいた。&lt;/p&gt;
+
+&lt;p&gt;のでそのまま提出しようとしたが、ファイルを読み込むだけで警告が出るはずないだろう、自分よりはるかに経験豊富な人達が作ってくれているライブラリなのに安易にしょうがないで片付けるのは早とちりなのではないかと思い、ちゃんと警告文と向き合った。&lt;/p&gt;
+
+&lt;p&gt;表示されていた警告文は以下の2つ。&lt;/p&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;lib&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;crud_controller&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;rb&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;62&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;C&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Security&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;The&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;use&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;of&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Kernel&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;#open is a serious security risk.&lt;/span&gt;
+  &lt;span class=&quot;nb&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;file_path&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'w'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;file&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;^^^^&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;lib&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;crud_controller&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;rb&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;17&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;26&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;C&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Correctable&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Security&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;JSONLoad&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Prefer&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;JSON&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;parse&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;over&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;JSON&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;load&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;
+      &lt;span class=&quot;nf&quot;&gt;json_object&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;JSON&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;load&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json_file&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+                         &lt;span class=&quot;o&quot;&gt;^^^^&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;open&lt;/code&gt; メソッドはOSコマンドインジェクションの&lt;a href=&quot;http://d.hatena.ne.jp/keyword/%C0%C8%BC%E5%C0%AD&quot;&gt;脆弱性&lt;/a&gt;があるらしい&lt;a href=&quot;https://www.lanches.co.jp/blog/5996&quot;&gt;https://www.lanches.co.jp/blog/5996&lt;/a&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;File.open&lt;/code&gt; を使うことで存在しないパスの場合はエラーになるのでOSコマンドインジェクション疑われるようなファイルのパス以外の文字列が渡されてもエラーにして回避できる。&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;JSON.load&lt;/code&gt; で直接ファイルを開かない&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;JSON.parse&lt;/code&gt;を推奨される理由が自分の検索能力では調べきれなかったが、なるべくファイルは開かないに越したことはないからなかと推測した。 そのため&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;File.open&lt;/code&gt; で読み込んだファイルオブジェクトを &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;read&lt;/code&gt; して文字列を渡して &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;parse&lt;/code&gt; してもらうように変更した。&lt;/p&gt;
+
+    &lt;p&gt;json_object = JSON.parse(json_file.read)&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;上記を行って警告は全解消できた。 と同時に、これ実務でもし修正せずにそのまま本番環境に適用させたら&lt;a href=&quot;http://d.hatena.ne.jp/keyword/%C0%C8%BC%E5%C0%AD&quot;&gt;脆弱性&lt;/a&gt;を作ったことになるなぁと怖くなった。&lt;/p&gt;
+
+&lt;p&gt;警告文を流し読みせず、しっかり向き合うように改めて思えるいい機会だった。&lt;/p&gt;
+
+&lt;h1 id=&quot;感想など&quot;&gt;感想など&lt;/h1&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://d.hatena.ne.jp/keyword/Sinatra&quot;&gt;Sinatra&lt;/a&gt; のプ&lt;a href=&quot;http://d.hatena.ne.jp/keyword/%A5%E9%A5%AF&quot;&gt;ラク&lt;/a&gt;ティスの提出物を完成させられた。&lt;/p&gt;
+
+&lt;p&gt;ところどころハマったところはあったが、かつてのように何が分からないかも分からないのでハマりを解消する手がかりさえ全く不明、というような頭を抱えるようなドハマリはなく、自分で調べて解消できるようになっていたので成長しているのかなと感じた。&lt;/p&gt;</content><author><name>otomi</name></author><category term="blog" /><summary type="html">1年以上ぶりの記事ですね。 去年の12月からフィヨルドブートキャンプに通っており、もう1年以上経ちます。 途中半年以上全然プラクティスをやっていないに等しいような時期があったのですが、ここ2ヶ月くらいはなんとか勉強が習慣化してきたようで連日のようにプラクティスを進めることができている状態です。 フィヨルドブートキャンプではプラクティスをやった日は必ず日報を書くようになっており、僕も必ず書いています。 その日報をブログにも書いて勉強の過程を公開しようしようと思いつつやれておらず、また過去にさかのぼってブログ書くのもしんどいので中途半端で唐突な始まりですが今日から本気出す。</summary></entry><entry><title type="html">Huel生活はじめました</title><link href="http://localhost:4000/I-started-living-on-huel/" rel="alternate" type="text/html" title="Huel生活はじめました" /><published>2019-11-07T00:00:00+09:00</published><updated>2019-11-07T00:00:00+09:00</updated><id>http://localhost:4000/I-started-living-on-huel</id><content type="html" xml:base="http://localhost:4000/I-started-living-on-huel/">&lt;p&gt;常々、一人のときの食事ってめんどくさいな〜栄養は取りたいけど買いにいく手間もかけたくないし食費はなるべく抑えたいし、自炊も時間かかるしそんな楽しくないし・・・となんとかハックしたいと思っておりまして、そんなわけで&lt;a href=&quot;https://jp.huel.com/&quot;&gt;Huel&lt;/a&gt;を試してみることにしました。&lt;/p&gt;
+
+&lt;!-- more --&gt;
+&lt;h3 id=&quot;huelにした理由&quot;&gt;Huelにした理由&lt;/h3&gt;
+
+&lt;h4 id=&quot;価格&quot;&gt;価格&lt;/h4&gt;
+
+&lt;p&gt;これ系の完全栄養食だと、&lt;a href=&quot;http://www.comp.jp/index.html&quot;&gt;COMP&lt;/a&gt;とか&lt;a href=&quot;https://www.allinseries.jp/&quot;&gt;All-inシリーズ&lt;/a&gt;とかがあると思います。&lt;/p&gt;
+
+&lt;p&gt;僕はダイエットをしたいわけではなく、体重を増やす方の肉体改造もしたいなという目論見がありまして、食事でしっかりカロリーを摂る必要がありました。&lt;br /&gt;
+大体一回の食事で700~1000kcalくらい摂りたい。1日あたり2200kcal~くらいを目標にしています。&lt;/p&gt;
+
+&lt;p&gt;そうなると価格が気になってくるんですよね。&lt;/p&gt;
+
+&lt;p&gt;Huelの場合自分で作るパウダータイプでおおよそ一食600円くらいにすることができて、良さそうでした。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;Huelは16,666円以上、あるいは衣類のみの注文（衣類だけ注文する人はそんなにいないでしょうか・・）で10%くらいの関税が発生します。&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;COMPやAll-inシリーズとの厳密な価格比較はしていません。関税とか考慮するとHuel以外の方が安くなる可能性もありますので、購入の際はご自身でも比較されてください。&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;価格の比較は別途記事にするかも。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;見た目&quot;&gt;見た目&lt;/h4&gt;
+
+&lt;p&gt;持ち運びに便利なボトルタイプのデザインが好きでした。&lt;br /&gt;
+外でも全然違和感なく飲めそうです。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://f.hatena.ne.jp/a_k_s_h/20191107133807&quot;&gt;&lt;img src=&quot;https://cdn-ak.f.st-hatena.com/images/fotolife/a/a_k_s_h/20191107/20191107133807.jpg&quot; alt=&quot;20191107133807&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;ちなみにこのボトルタイプだと一本あたり約500円で、便利な分パウダータイプより割高です。&lt;/p&gt;
+
+&lt;p&gt;ボトルタイプは一本400kcalなので、体重を減らしたい目的がなければ成人男性では足りないと思います。&lt;br /&gt;
+2本飲むこと、継続することを考えるとパウダータイプが良さそうです。&lt;/p&gt;
+
+&lt;h3 id=&quot;実際に届きました&quot;&gt;実際に届きました&lt;/h3&gt;
+
+&lt;p&gt;注文して約1週間で届きました。 おしゃれでいいですね。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://cdn-ak.f.st-hatena.com/images/fotolife/a/a_k_s_h/20191105/20191105101742.jpg&quot; alt=&quot;f:id:a_k_s_h:20191105101742j:plain&quot; title=&quot;f:id:a\_k\_s\_h:20191105101742j:plain&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;一ヶ月分注文したので、このブログや&lt;a href=&quot;https://twitter.com/ot0m1&quot;&gt;Twitter&lt;/a&gt;で経過報告をしていきたいと思います。&lt;/p&gt;</content><author><name>otomi</name></author><category term="blog" /><summary type="html">常々、一人のときの食事ってめんどくさいな〜栄養は取りたいけど買いにいく手間もかけたくないし食費はなるべく抑えたいし、自炊も時間かかるしそんな楽しくないし・・・となんとかハックしたいと思っておりまして、そんなわけでHuelを試してみることにしました。</summary></entry></feed>
