@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>Homebrew/rbenv/gem/Bundler ってなんじゃい – tmp/log – GMO Pepabo, Inc. フィヨルドブートキャンプ</title>
+
+      <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="それぞれどう違うのか説明できないですよね。 僕は説明できません。 ググってなんとなくてやっていたのでちゃんと理解したいと思います。
+
+ちゃんと理解するとは
+
+
+  
+    Qiita（いつもお世話になっています）などの複次情報ではなく、原典にあたる
+  
+  
+    出典元を可能な限り明記する
+  
+
+
+なお、各々の利用方法の解説はしません。それぞれの違い、なぜ利用するのかを明らかにすることを本記事の目的とします。
+
+" />
+    <meta property="og:description" content="それぞれどう違うのか説明できないですよね。 僕は説明できません。 ググってなんとなくてやっていたのでちゃんと理解したいと思います。
+
+ちゃんと理解するとは
+
+
+  
+    Qiita（いつもお世話になっています）などの複次情報ではなく、原典にあたる
+  
+  
+    出典元を可能な限り明記する
+  
+
+
+なお、各々の利用方法の解説はしません。それぞれの違い、なぜ利用するのかを明らかにすることを本記事の目的とします。
+
+" />
+    
+    <meta name="author" content="tmp/log" />
+
+    
+    <meta property="og:title" content="Homebrew/rbenv/gem/Bundler ってなんじゃい" />
+    <meta property="twitter:title" content="Homebrew/rbenv/gem/Bundler ってなんじゃい" />
+    
+  <!-- Async font loading -->
+<script>
+  window.WebFontConfig = {
+      custom: {
+          families: ['Spoqa Han Sans:100,300,400,700'],
+          urls: ['https://spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-kr.css']
+      },
+      timeout: 60000
+  };
+  (function(d) {
+      var wf = d.createElement('script'), s = d.scripts[0];
+      wf.src = 'https://ajax.googleapis.com/ajax/libs/webfont/1.5.18/webfont.js';
+      s.parentNode.insertBefore(wf, s);
+  })(document);
+</script>
+
+<!--adobe fonts-->
+<script>
+    (function(d) {
+      var config = {
+        kitId: 'vbt3gjx',
+        scriptTimeout: 3000,
+        async: true
+      },
+      h=d.documentElement,t=setTimeout(function(){h.className=h.className.replace(/\bwf-loading\b/g,"")+" wf-inactive";},config.scriptTimeout),tk=d.createElement("script"),f=false,s=d.getElementsByTagName("script")[0],a;h.className+=" wf-loading";tk.src='https://use.typekit.net/'+config.kitId+'.js';tk.async=true;tk.onload=tk.onreadystatechange=function(){a=this.readyState;if(f||a&&a!="complete"&&a!="loaded")return;f=true;clearTimeout(t);try{Typekit.load(config)}catch(e){}};s.parentNode.insertBefore(tk,s)
+    })(document);
+</script> 
+
+  <!--[if lt IE 9]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link rel="stylesheet" type="text/css" href="/style.css" />
+  <link rel="alternate" type="application/rss+xml" title="tmp/log - GMO Pepabo, Inc. フィヨルドブートキャンプ" href="/feed.xml" />
+  <link rel="shortcut icon" href="https://raw.githubusercontent.com/FromEndWorld/LOFFER/master/images/favicon.png">
+  <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
+  <script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+        inlineMath: [['$','$']]
+      }
+    });
+  </script>
+
+  <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+
+</head>
+
+  <body>
+    <div class="wrapper-sidebar">
+  <header class="sidebar clearfix">
+    <div class="site-info">
+      
+        <a href="/" class="site-avatar"><img src="https://raw.githubusercontent.com/FromEndWorld/LOFFER/master/images/logo.png" /></a>
+       
+      <h1 class="site-name"><a href="/">tmp/log</a></h1>
+      <p class="site-description">GMO Pepabo, Inc. フィヨルドブートキャンプ</p>
+    </div>
+  </header>
+
+  <div class="navlist">
+    <nav>
+      
+      
+      <a href="/">top</a>
+      
+      
+      
+      <a href="/about">about</a>
+      
+      
+      
+      <a href="/archive">archive</a>
+      
+      
+      
+      <a href="/tags">tags</a>
+      
+      
+    </nav>
+  </div>
+
+  <div class="wrapper-footer-desktop">
+    <footer class="footer">
+      <!-- Refer to https://codepen.io/ruandre/pen/howFi -->
+<ul class="svg-icon">
+
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  <li><a href="https://github.com/ot0m1" class="icon-13 github" title="GitHub"><svg viewBox="0 0 512 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg><!--[if lt IE 9]><em>GitHub</em><![endif]--></a></li>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  <li><a href="https://www.twitter.com/ot0m1" class="icon-26 twitter" title="Twitter"><svg viewBox="0 0 512 512"><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg><!--[if lt IE 9]><em>Twitter</em><![endif]--></a></li>
+  
+
+  
+
+</ul>
+
+
+
+<p>The original design was created by <a href="https://github.com/FromEndWorld/LOFFER">LOFFER</a></p>
+
+    </footer>
+  </div>
+</div>
+
+    
+
+    <div id="main" role="main" class="wrapper-content">
+      <div class="container">
+        <article class="posts">
+  <h1>Homebrew/rbenv/gem/Bundler ってなんじゃい</h1>
+
+  <div clsss="meta">
+    <span class="author">
+      otomi
+    </span>
+
+    <span class="date">
+      2019-07-14
+    </span>
+
+    <ul class="tag">
+      
+      <li>
+        <!-- <a href="http://localhost:4000/tags#blog"> -->
+        <a href="https://blog.otomi.world/tags#blog">
+          blog
+        </a>
+      </li>
+      
+    </ul>
+  </div>
+
+  <div class="entry">
+    <p>それぞれどう違うのか説明できないですよね。 僕は説明できません。 ググってなんとなくてやっていたのでちゃんと理解したいと思います。</p>
+
+<h2 id="ちゃんと理解するとは">ちゃんと理解するとは</h2>
+
+<ul>
+  <li>
+    <p>Qiita（いつもお世話になっています）などの複次情報ではなく、原典にあたる</p>
+  </li>
+  <li>
+    <p>出典元を可能な限り明記する</p>
+  </li>
+</ul>
+
+<p>なお、各々の利用方法の解説はしません。それぞれの違い、なぜ利用するのかを明らかにすることを本記事の目的とします。</p>
+
+<!-- more -->
+<h2 id="概要">概要</h2>
+
+<p>それぞれの公式サイトに書かれていることから、gem以外のHomebrew/rbenv/Bundlerの3つはすべてパッケージ管理システムと言われるものの一種のようです。</p>
+
+<blockquote>
+  <p>パッケージ管理システムとは、OSというひとつの環境で、各種のソフトウェアの導入と削除、そしてソフトウェア同士やライブラリとの依存関係を管理するシステムである。</p>
+</blockquote>
+
+<p><a href="https://ja.wikipedia.org/wiki/%E3%83%91%E3%83%83%E3%82%B1%E3%83%BC%E3%82%B8%E7%AE%A1%E7%90%86%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0">wikipedia</a>より。</p>
+
+<h3 id="homebrew">Homebrew</h3>
+
+<h4 id="公式サイト">公式サイト</h4>
+
+<iframe src="https://hatenablog-parts.com/embed?url=https%3A%2F%2Fbrew.sh%2Findex_ja" title="Homebrew" class="embed-card embed-webcard" scrolling="no" frameborder="0" style="display: block; width: 100%; height: 155px; max-width: 500px; margin: 10px 0px;"></iframe>
+<p><cite class="hatena-citation"><a href="https://brew.sh/index_ja">brew.sh</a></cite></p>
+
+<h4 id="概要-1">概要　</h4>
+
+<p><a href="https://docs.brew.sh/Manpage">brew(1) – The missing package manager for macOS — Homebrew Documentation</a>より。</p>
+
+<blockquote>
+  <p><a href="http://d.hatena.ne.jp/keyword/brew">brew</a>(1) – The missing package manager for <a href="http://d.hatena.ne.jp/keyword/macOS">macOS</a></p>
+</blockquote>
+
+<p>_ <strong>package manager</strong> _と書かれています。</p>
+
+<blockquote>
+  <p>DESCRIPTION<br />
+Homebrew is the easiest and <a href="http://d.hatena.ne.jp/keyword/most">most</a> flexible way to install the <a href="http://d.hatena.ne.jp/keyword/UNIX">UNIX</a> tools <a href="http://d.hatena.ne.jp/keyword/Apple">Apple</a> didn’t include with <a href="http://d.hatena.ne.jp/keyword/macOS">macOS</a>.</p>
+</blockquote>
+
+<p><em><strong>説明<br />
+Homebrewは、<a href="http://d.hatena.ne.jp/keyword/Apple">Apple</a>が<a href="http://d.hatena.ne.jp/keyword/macOS">macOS</a>に含まなかった<a href="http://d.hatena.ne.jp/keyword/UNIX">UNIX</a>ツールをインストールするための最も簡単で最も柔軟な方法です。</strong></em></p>
+
+<p>ほうほう。<a href="http://d.hatena.ne.jp/keyword/macOS">macOS</a>にプリインストールされていない<a href="http://d.hatena.ne.jp/keyword/UNIX">UNIX</a>ツールをインストールするために便利なツールのようですね。</p>
+
+<h3 id="rbenv">rbenv</h3>
+
+<h4 id="公式サイト-1">公式サイト</h4>
+
+<iframe src="https://hatenablog-parts.com/embed?url=https%3A%2F%2Fgithub.com%2Frbenv%2Frbenv" title="rbenv/rbenv" class="embed-card embed-webcard" scrolling="no" frameborder="0" style="display: block; width: 100%; height: 155px; max-width: 500px; margin: 10px 0px;"></iframe>
+<p><cite class="hatena-citation"><a href="https://github.com/rbenv/rbenv">github.com</a></cite><a href="http://d.hatena.ne.jp/keyword/Github">Github</a>のページだけかな。</p>
+
+<h4 id="概要-2">概要</h4>
+
+<p><a href="https://github.com/rbenv/rbenv">GitHub - rbenv/rbenv: Groom your app’s Ruby environment</a>より。 README.mdに書かれています。</p>
+
+<blockquote>
+  <p>Groom your app’s <a href="http://d.hatena.ne.jp/keyword/Ruby">Ruby</a> environment with rbenv.</p>
+</blockquote>
+
+<p><em><strong>rbenvを使用してアプリの<a href="http://d.hatena.ne.jp/keyword/Ruby">Ruby</a>環境を整えます。</strong></em></p>
+
+<blockquote>
+  <p>Use rbenv to pick a <a href="http://d.hatena.ne.jp/keyword/Ruby">Ruby</a> version for your application and guarantee that your development environment matches production.</p>
+</blockquote>
+
+<p><em><strong>rbenvを使用してアプリケーションの<a href="http://d.hatena.ne.jp/keyword/Ruby">Ruby</a>バージョンを選択し、開発環境と本番環境が一致することを確認してください。</strong></em></p>
+
+<blockquote>
+  <p>Put rbenv to work with Bundler for painless <a href="http://d.hatena.ne.jp/keyword/Ruby">Ruby</a> upgrades and bulletproof deployments.</p>
+</blockquote>
+
+<p><em><strong>苦労のない<a href="http://d.hatena.ne.jp/keyword/Ruby">Ruby</a>アップグレードと失敗の心配のないデプロイのためにrbenvをBundlerと連携させてください。</strong></em><br />
+お、_Bundler_が出てきましたね。大文字から始まっているので固有名詞のBundlerで間違いなさそうですね。</p>
+
+<blockquote>
+  <p>One thing well. rbenv is concerned solely with switching <a href="http://d.hatena.ne.jp/keyword/Ruby">Ruby</a> versions.</p>
+</blockquote>
+
+<p><em><strong>1つだけです。rbenvは<a href="http://d.hatena.ne.jp/keyword/Ruby">Ruby</a>のバージョンを切り替えることだけに関心があります。</strong></em></p>
+
+<p>いいですね。<a href="http://d.hatena.ne.jp/keyword/Ruby">Ruby</a>のバージョンを切り替えることだけに関心があるそうです。こんな風に迷いなく生きたいですね。</p>
+
+<h3 id="gem">gem</h3>
+
+<h4 id="公式サイト-2">公式サイト</h4>
+
+<iframe src="https://hatenablog-parts.com/embed?url=https%3A%2F%2Frubygems.org%2F" title="RubyGems.org | your community gem host" class="embed-card embed-webcard" scrolling="no" frameborder="0" style="display: block; width: 100%; height: 155px; max-width: 500px; margin: 10px 0px;"></iframe>
+<p><cite class="hatena-citation"><a href="https://rubygems.org/">rubygems.org</a></cite></p>
+
+<p>gemっていうのは<a href="http://d.hatena.ne.jp/keyword/%A5%B5%A1%BC%A5%C9%A5%D1%A1%BC%A5%C6%A5%A3">サードパーティ</a>のライブラリを指しており、それぞれのgemの公式サイトは載せられない（2019/07 時点で約15万のgemがある・・！）のでgemを管理しているサイトを公式サイトとします。</p>
+
+<h4 id="概要-3">概要</h4>
+
+<p><a href="https://www.ruby-lang.org/ja/libraries/">Ruby公式サイト</a>の<a href="https://www.ruby-lang.org/ja/libraries/">ライブラリ</a>より。</p>
+
+<p>やっと全部日本語のページです・・！</p>
+
+<blockquote>
+  <p>ライブラリ<br />
+多くの<a href="http://d.hatena.ne.jp/keyword/%A5%D7%A5%ED%A5%B0%A5%E9%A5%DF%A5%F3%A5%B0%B8%C0%B8%EC">プログラミング言語</a>と同様に、<a href="http://d.hatena.ne.jp/keyword/Ruby">Ruby</a> にも幅広い<a href="http://d.hatena.ne.jp/keyword/%A5%B5%A1%BC%A5%C9%A5%D1%A1%BC%A5%C6%A5%A3">サードパーティ</a>のライブラリが提供されています。</p>
+
+  <p>それらのほとんどは “gem” という形式で公開されています。<a href="http://d.hatena.ne.jp/keyword/RubyGems">RubyGems</a> は (<a href="http://d.hatena.ne.jp/keyword/Ruby">Ruby</a> に特化した apt-get と同じようなパッケージングシステムで) ライブラリの作成や公開、インストールを助けるシステムです。<a href="http://d.hatena.ne.jp/keyword/Ruby">Ruby</a> のバージョン 1.9 以降 <a href="http://d.hatena.ne.jp/keyword/RubyGems">RubyGems</a> は標準添付となっていますが、それ以前のバージョンの <a href="http://d.hatena.ne.jp/keyword/Ruby">Ruby</a> の場合は自分でインストールする必要があります。</p>
+</blockquote>
+
+<p>gemというのは<a href="http://d.hatena.ne.jp/keyword/%A5%B5%A1%BC%A5%C9%A5%D1%A1%BC%A5%C6%A5%A3">サードパーティ</a>で開発されたライブラリのようです。</p>
+
+<blockquote>
+  <p><a href="http://d.hatena.ne.jp/keyword/Ruby">Ruby</a> のライブラリは主に <a href="http://d.hatena.ne.jp/keyword/RubyGems">RubyGems</a>.org に gem として置かれています。直接ウェブサイトを閲覧したり、gem コマンドを使用してそれらを探すことができます。</p>
+</blockquote>
+
+<p>_<strong><a href="http://d.hatena.ne.jp/keyword/RubyGems">RubyGems</a>.org</strong>_とは公式サイトとして紹介したサイトですね。</p>
+
+<h3 id="bundler">Bundler</h3>
+
+<h4 id="公式サイト-3">公式サイト</h4>
+
+<iframe src="https://hatenablog-parts.com/embed?url=https%3A%2F%2Fbundler.io%2F" title="Bundler: The best way to manage a Ruby application's gems" class="embed-card embed-webcard" scrolling="no" frameborder="0" style="display: block; width: 100%; height: 155px; max-width: 500px; margin: 10px 0px;"></iframe>
+<p><cite class="hatena-citation"><a href="https://bundler.io/">bundler.io</a></cite></p>
+
+<h4 id="概要-4">概要</h4>
+
+<blockquote>
+  <p>Bundler provides a consistent environment for <a href="http://d.hatena.ne.jp/keyword/Ruby">Ruby</a> projects by tracking and installing the exact gems and versions that are needed.</p>
+</blockquote>
+
+<p><em><strong>Bundlerは、必要な正確なgemとバージョンを追跡してインストールすることによって、<a href="http://d.hatena.ne.jp/keyword/Ruby">Ruby</a>プロジェクトに一貫した環境を提供します。</strong></em></p>
+
+<p>gemが出てきました！</p>
+
+<blockquote>
+  <p>Bundler is an exit from <a href="http://d.hatena.ne.jp/keyword/dependency">dependency</a> hell, and ensures that the gems you need are present in development, staging, and production.</p>
+</blockquote>
+
+<p>_ <strong>Bundlerは依存関係の地獄からの出口であり、あなたが必要とするgemsが開発、ステージング、そしてプロダクションに存在することを保証します。</strong> _</p>
+
+<p>gemsの依存関係を解決するもののようですね。</p>
+
+<h2 id="概要を把握したあとで">概要を把握したあとで</h2>
+
+<p>ここからは僕自身のまとめとなります。 gem以外のHomebrew/rbenv/Bundlerの3つはすべてパッケージ管理システムと言われるものの一種であることが公式サイトの説明から分かりました。</p>
+
+<h3 id="なぜパッケージ管理システムが必要なのか">なぜパッケージ管理システムが必要なのか</h3>
+
+<p>環境が複雑になっていくにつれ、それぞのパッケージが人間で管理しきれなくなってくるという問題を解決するためです。</p>
+
+<p>もう一度<a href="http://d.hatena.ne.jp/keyword/wikipedia">wikipedia</a>の説明を見てみます。</p>
+
+<blockquote>
+  <p>パッケージ管理システムとは、OSというひとつの環境で、各種のソフトウェアの導入と削除、そしてソフトウェア同士やライブラリとの依存関係を管理するシステムである。</p>
+</blockquote>
+
+<p>_ <strong>各種のソフトウェアの導入と削除、そしてソフトウェア同士やライブラリとの依存関係を管理する</strong> _とあります。</p>
+
+<p><a href="http://d.hatena.ne.jp/keyword/Ruby">Ruby</a>の開発環境だとこういう導入のモチベーションとなります。</p>
+
+<ul>
+  <li>複数の<a href="http://d.hatena.ne.jp/keyword/Ruby">Ruby</a>のバージョンで開発や動作テストを行うことになった</li>
+  <li>複数のバージョン管理がしんどい</li>
+  <li>rbenvで管理することにする</li>
+  <li>rbenvもソフトウェアであり、rbenv自体の管理も必要なのでHomebrewでインストールし、管理する</li>
+  <li>ピュアな<a href="http://d.hatena.ne.jp/keyword/Ruby">Ruby</a>だけで開発はできないのでいろんなgemをインストールする必要がある（<a href="http://d.hatena.ne.jp/keyword/Ruby%20on%20Rails">Ruby on Rails</a>もgem！）</li>
+  <li>○○のgemをインストールするために○○を先にインストールしておかないという場面が発生した！（いわゆる依存関係）</li>
+  <li>gemの管理もしんどい</li>
+  <li>Bundlerで管理することにする</li>
+</ul>
+
+<p>それぞれ困った場面があり、それを解決したいから導入するわけですね。</p>
+
+
+  </div>
+
+  
+  
+<script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="issue-term"
+        label="utteranc"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+  
+</article>
+
+<div class="pagination">
+  
+    <span class="prev" >
+      <!-- <a href="http://localhost:4000/Sixth-session-of-Daimyo-Engineering-College/"> -->
+      <a href="/Sixth-session-of-Daimyo-Engineering-College/">
+        ← 前のページ
+      </a>
+    </span>
+  
+  
+    <span class="next" >
+      <!-- <a href="http://localhost:4000/Seventh-session-of-Daimyo-Engineering-College/"> -->
+      <a href="/Seventh-session-of-Daimyo-Engineering-College/">
+        次のページ →
+      </a>
+    </span>
+  
+</div>
+
+      </div>
+    </div>
+
+    
+
+  </body>
+
+  
+
+  <div class="wrapper-footer-mobile">
+    <footer class="footer">
+      <!-- Refer to https://codepen.io/ruandre/pen/howFi -->
+<ul class="svg-icon">
+
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  <li><a href="https://github.com/ot0m1" class="icon-13 github" title="GitHub"><svg viewBox="0 0 512 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg><!--[if lt IE 9]><em>GitHub</em><![endif]--></a></li>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  <li><a href="https://www.twitter.com/ot0m1" class="icon-26 twitter" title="Twitter"><svg viewBox="0 0 512 512"><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg><!--[if lt IE 9]><em>Twitter</em><![endif]--></a></li>
+  
+
+  
+
+</ul>
+
+
+
+<p>The original design was created by <a href="https://github.com/FromEndWorld/LOFFER">LOFFER</a></p>
+
+    </footer>
+
+
+</html>

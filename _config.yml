@@ -1,1 +1,129 @@
-theme: jekyll-theme-cayman
+#
+# このドキュメントには、このブログの設定に関する情報が含まれており、
+# これらを編集して自分のブログをカスタマイズすることができます。
+#
+
+# ブログ名は、「LOFFER」をご希望のブログ名に変更してください。
+# なお、「name: LOFFER」の場合、コロンの後のスペースは省略してはいけません。
+# # マークの後のテキストは説明文書であり、プログラムでは読まれません。
+name: tmp/log
+title: tmp/log
+description: GMO Pepabo, Inc. フィヨルドブートキャンプ
+
+# ウェブサイトのドメイン名を入力してください
+# （独自のドメイン名を追加せず、GitHubページで割り当てられたドメイン名を使用する場合は、省略できます）。
+url: blog.otomi.world
+
+# あなたのブログのセカンダリドメイン（一般的にはリポジトリ名）を追加します。
+# あなたのブログのURLが(http://yourusername.github.io/repository-name)であれば、
+# 次のように書きます。 "/repository-name"
+baseurl: 
+
+
+#
+# 以下の設定はすべてオプションです。
+#
+
+# あなたのブログのロゴ画像のURL、推奨サイズは300px×300px以内です。
+avatar: https://raw.githubusercontent.com/FromEndWorld/LOFFER/master/images/logo.png
+
+# あなたのファビコン（ブラウザのタブに表示される）画像のURL、小さいサイズ（64px×64px）の画像を推奨します。
+favicon: https://raw.githubusercontent.com/FromEndWorld/LOFFER/master/images/favicon.png
+
+
+# メニューのボタン
+navigation:
+  - name: top
+    url: /
+  - name: about
+    url: /about
+  - name: archive
+    url: /archive
+  - name: tags
+    url: /tags
+
+# 1ページあたりの記事数
+paginate: 8
+
+# 記事のプロフィールの識別マーク
+excerpt_separator: <!-- more -->
+
+# あなたのソーシャルネットワークのリンクは、ウェブサイトのフッターにアイコンとして表示されます。
+footer-links: 
+  weibo: #weiboのパーソナライズドドメイン名を入力してください。 https://www.weibo.com/<thispart>
+  behance: # https://www.behance.net/<>
+  dribbble: # https://dribbble.com/<>
+  email: #youremailaddress@mail.com
+  facebook: #https://www.facebook.com/<>
+  flickr: #https://www.flickr.com/<>
+  github: ot0m1 #https://github.com/<>
+  instagram: #https://instagram.com/<>
+  linkedin: #https://www.linkedin.com/in/<>
+  pinterest: #https://www.pinterest.com/<>
+  rss: #いくつかのRSSを入力するだけで使えるようになります。
+  stackoverflow: # http://stackoverflow.com/<>
+  tumblr: # https://<username>.tumblr.com
+  twitter: ot0m1 # https://www.twitter.com/<your_twitter_username> 
+  youtube: # channel/<your_long_string> or user/<user-name>
+
+# サイトフッターのテキスト
+footer-text: The original design was created by <a href="https://github.com/FromEndWorld/LOFFER">LOFFER</a>
+
+#
+# コメント、注意、複数の異なるコメント欄を同時に追加しないでください。
+#
+
+# コメント欄を追加するにはDisqusのショートネームを入力します。ドキュメントを確認して自分のDisqusサイトを設定し、私のサイトlofferを使い続けないでください。
+disqus: #shortname
+
+# コメント欄を追加するには、Gitalk関連の設定を入力します。詳細はチュートリアルを参照してください。
+gitalk:
+  clientID: 
+  clientSecret: 
+  repo: 
+  owner: 
+  proxy:
+
+# Google Analytics web tracking code
+google_analytics:
+
+utteranc:
+  repo: # Your github repo path, also see: https://utteranc.es
+
+#
+# !! 以下の設定はすべて変更する必要はありません。 !!
+#
+
+permalink: /:title/
+paginate_path: /page:num/
+
+# The release of Jekyll Now that you're using
+version: v1.2.0
+
+# Jekyll 3 now only supports Kramdown for Markdown
+kramdown:
+  # Use GitHub flavored markdown, including triple backtick fenced code blocks
+  input: GFM
+  # Jekyll 3 and GitHub Pages now only support rouge for syntax highlighting
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    # Use existing pygments syntax highlighting css
+    css_class: 'highlight'
+
+# Set the Sass partials directory, as we're using @imports
+sass:
+  style: :expanded # You might prefer to minify using :compressed
+
+# Use the following plug-ins
+plugins:
+  - jekyll-sitemap # Create a sitemap using the official Jekyll sitemap gem
+  - jekyll-feed # Create an Atom feed using the official Jekyll feed gem
+  - jekyll-paginate
+
+# Exclude these files from your production _site
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - LICENSE
+  - README.md
+  - CNAME
