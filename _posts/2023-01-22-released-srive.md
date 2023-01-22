@@ -22,13 +22,12 @@ comments: false
 作ったアプリケーションは Srive という名前です。
 Spotify + drive の造語です。
 
-リポジトリは https://github.com/ot0m1/Srive で、https://srive.app/ からアクセスできます。
+リポジトリは [https://github.com/ot0m1/Srive](https://github.com/ot0m1/Srive) で、[https://srive.app/](https://srive.app/) からアクセスできます。
 
 ### 作った動機
 
 僕は Spotify のヘビーユーザーで、2022年は日本のユーザーの上位2%に入るくらい利用していました。
 72,415分聴いていたらしいです…！
-https://twitter.com/ot0m1/status/1598335541099245569
 
 ![image.png](https://user-images.githubusercontent.com/6190966/213897919-b52faa3f-254e-460a-a5ff-1a453813cd33.png)
 
@@ -45,14 +44,20 @@ Spotify の iOS 版アプリケーションを利用している際、以下の�
 
 iOS  版のアプリケーションだと、以下の画面のようにアルバム単位、シングル単位で遷移しないと再生ができません。
 
-![image.png](https://user-images.githubusercontent.com/6190966/213897926-80af6f6c-8656-416b-a704-d96e8c92ad6f.png)
+<div align="center">
+<img src="https://user-images.githubusercontent.com/6190966/213897926-80af6f6c-8656-416b-a704-d96e8c92ad6f.png" width="300px">
+</div>
 
-![image.png](https://user-images.githubusercontent.com/6190966/213897931-e8502493-409c-4c2e-8776-8090758d3c41.png)
+<div align="center">
+<img src="https://user-images.githubusercontent.com/6190966/213897931-e8502493-409c-4c2e-8776-8090758d3c41.png" width="300px">
+</div>
 
 曲全部を一気に聴きたいと思っても、Spotify によって作成されたコンセプチュアルなプレイリストしかなく、他のアーティストの曲などが含まれていたりします。
 たまに有志が作成してくれた曲を網羅したプレイリストが存在することがあるが、あったりなかったりと運まかせです。
 
-![image.png](https://user-images.githubusercontent.com/6190966/213897933-6a77c796-16cf-4982-b04e-ff8ad845661d.png)
+<div align="center">
+<img src="https://user-images.githubusercontent.com/6190966/213897933-6a77c796-16cf-4982-b04e-ff8ad845661d.png" width="300px">
+</div>
 
 当然アプリケーション側で連続して曲をかけてくれる機能はあるのですが、それは Spotify 側がリコメンドして選んでくれたものであって、同じアーティストの曲を発表順に連続してかけてくれる性質のものではありません。
 そのため、Spotify の iOS 版アプリケーションで同じアーティストの曲を連続して聴き続けようとすると、シングルやアルバムの演奏が終わると手動で次の曲を選択する必要があります。
