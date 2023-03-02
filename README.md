@@ -1,1 +1,1 @@
-blog.otomi.world
+[blog.otomi.world](https://blog.otomi.world/)
