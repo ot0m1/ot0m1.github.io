@@ -1,0 +1,179 @@
+<p>レンタルサーバーのお仕事をやっていて、色々とサーバーのログを見たりするわけなんですが、ネットでググった断片的な知識で騙し騙しやっている気がしていました。
+なのできっちり体系的に学んでいこうと思います。</p>
+
+<p>まずは VPS を借りて、ウェブサーバーをインストールしてサイトを表示させるとことまでやってみます。</p>
+
+<!-- more -->
+
+<h1 id="サーバーを用意する">サーバーを用意する</h1>
+
+<p>まずは遊ぶためのサーバーを用意します。</p>
+
+<p>参考にした本は以下です。</p>
+
+<p><a href="https://www.amazon.co.jp/gp/product/B07HH22LJR/">ゼロからわかる Linux Webサーバー超入門［Apache HTTP Server対応版］ かんたんIT基礎講座</a></p>
+
+<p>VPS は<a href="https://vps.sakura.ad.jp/">さくらのVPS</a>を使います。
+申込みするとことなどは割愛。</p>
+
+<p>OS は CentOS 7 x86_64 を選択。<br />
+管理ユーザー名は <code class="language-plaintext highlighter-rouge">root</code> になる。</p>
+
+<p>初回ログインは<code class="language-plaintext highlighter-rouge">管理ユーザー名@ホスト名 or IPv4 Address</code>。パスワード認証になっている。</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssh root@example.vs.sakura.ne.jp
+</code></pre></div></div>
+
+<p>サーバーにログインできたらまずはアップデート。</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>yum update
+</code></pre></div></div>
+
+<h2 id="作業用ユーザーの作成--設定">作業用ユーザーの作成 &amp; 設定</h2>
+<p>root ユーザーの他に作業用のユーザーを作って、通常はそっちのユーザーで作業するのが一般的。</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>useradd hoge
+passwd hoge
+</code></pre></div></div>
+
+<p>sudo を使えるように権限を設定する。</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>usermod <span class="nt">-G</span> wheel hoge
+</code></pre></div></div>
+
+<p>設定ファイルの編集。</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>visudo
+</code></pre></div></div>
+
+<p>以下の <code class="language-plaintext highlighter-rouge">%wheel  ALL=(ALL)       ALL</code> の箇所がコメントアウトされているようなら解除する。</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>%wheel  <span class="nv">ALL</span><span class="o">=(</span>ALL<span class="o">)</span>       ALL
+</code></pre></div></div>
+
+<h2 id="鍵認証の設定">鍵認証の設定</h2>
+<p>SSH のログインがパスワード認証ではセキュリティが低いので、鍵認証に変更する。</p>
+
+<p>公開鍵を置くディレクトリを作成。先程作ったユーザーに切り替えて作業する。</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">mkdir</span> ~/.ssh
+</code></pre></div></div>
+
+<p>手元のパソコンで以下の作業を行って鍵を作る。2023年現在は暗号方式は ed25519 を使う。</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssh-keygen <span class="nt">-t</span> ed25519
+<span class="nb">chmod </span>600 id_rsa.pub
+</code></pre></div></div>
+
+<p>サーバーに作った公開鍵をアップロードする。</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>scp id_rsa.pub hoge@example.vs.sakura.ne.jp:/home/hoge/.ssh
+</code></pre></div></div>
+
+<p>Permission denied となるようであれば一時的に公開鍵のファイルとアップロード先のディレクトリのパーミッションを 777 にする。</p>
+
+<p>ファイルがアップロードできたら手元のパソコンと VPS にアップロードした公開鍵のパーミッションを 600 に変更。及び VPS の公開鍵のファイル名を authorized_keys に変更する。</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> .ssh
+<span class="nb">chmod </span>600 id_rsa.pub
+<span class="nb">mv </span>id_rsa.pub authorized_keys
+</code></pre></div></div>
+
+<p>これで鍵認証での SSH ができるようになっているはずなので、再度ログインし直してみる。</p>
+
+<h2 id="sshの設定">SSHの設定</h2>
+
+<p>さらにセキュリティを高めるため、root でのログイン及びパスワードでのログインをできないようにする。</p>
+
+<p>root でのログインを禁止する。<br />
+ここから先は root 権限での作業となる。先程作ったユーザーでコマンドに <code class="language-plaintext highlighter-rouge">sudo</code> をつけるか、<code class="language-plaintext highlighter-rouge">sudo -s</code> を実行して root になっておく。</p>
+
+<p>ssh の設定を変更し、sshd を再起動。</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vim /etc/ssh/sshd_config
+<span class="c"># PermitRootLogin yes の行を探してコメントアウトされているならコメント解除して、PermitRootLogin no に変更する root でのログインを禁止</span>
+<span class="c"># PasswordAuthentication yes PasswordAuthentication no に変更する パスワード認証の禁止</span>
+systemctl restart sshd
+</code></pre></div></div>
+
+<p>パスワードでのログインをできないようにする。</p>
+
+<p>ここまでやったらセキュリティが最低限担保されているので、作業を止めていい。お疲れ様でした。
+VPS に申し込んでサーバーを起動したら、ここまでは一気にやっておきたい。</p>
+
+<p>インターネットにサーバーを公開したら、攻撃だと疑われるアクセスがマジでガンガンに来ますよ！<br />
+もし鍵認証の設定に手間取ったときのために、初回のログインパスワードは必ず強固なものにしておいてください。</p>
+
+<h1 id="ウェブサーバーを立ち上げる">ウェブサーバーを立ち上げる</h1>
+
+<p>落ち着いて作業できる状態にしたので、いよいよ Apache をインストールしてウェブサーバーを立ち上げる。</p>
+
+<p>ここからは基本コマンドは <code class="language-plaintext highlighter-rouge">sudo</code> つけているものとする。</p>
+
+<h2 id="インストール">インストール</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>yum <span class="nb">install </span>httpd
+</code></pre></div></div>
+
+<p>インストール成功したかを一応確認。</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>httpd <span class="nt">-v</span>
+Server version: Apache/2.4.6 <span class="o">(</span>CentOS<span class="o">)</span>
+Server built:   Jan 27 2023 17:36:29
+</code></pre></div></div>
+
+<p>Apache を起動する。</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>systemctl start httpd
+</code></pre></div></div>
+
+<p>起動に成功したら何も表示されない。こちらも一応起動を確認しておく。</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>systemctl status httpd
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">Active: active (running)</code> が表示されていれば成功。<br />
+動いていなければ <code class="language-plaintext highlighter-rouge">Active: inactive (dead)</code> になる。</p>
+
+<h2 id="自動起動するように設定">自動起動するように設定</h2>
+
+<p>このままの設定ではサーバーを再起動した際に Apache が自動的に起動してくれない。</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>systemctl <span class="nb">enable </span>httpd
+</code></pre></div></div>
+
+<p>自動起動するようになったかを確認。</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>systemctl is-enabled httpd
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">enabled</code> となれば自動起動するようになっている。</p>
+
+<p>自動起動をやめたいときは</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>systemctl disable httpd
+</code></pre></div></div>
+
+<p>これでウェブサーバーは立ち上がったが、さくらVPSの場合は別途作業が必要。</p>
+
+<p>さくらVPSにはパケットフィルターという機能が提供されており、この機能によって Web のポートである TCP 80/443 が閉じている。
+これを利用可能にする必要がある。</p>
+
+<p><img src="https://user-images.githubusercontent.com/6190966/222192265-b855ceac-4d42-4a60-84e0-d624bdd6f882.png" /></p>
+
+<p><img src="https://user-images.githubusercontent.com/6190966/222192279-bbea322e-3d54-47ff-936d-daa745d93d00.png" /></p>
+
+<p>ここまでの作業で <code class="language-plaintext highlighter-rouge">http://example.vs.sakura.ne.jp</code> のようにさくらVPSの URL にアクセスすると無事サイトが表示されているはず。</p>
+
+<p><img src="https://user-images.githubusercontent.com/6190966/222193643-6fbeab0a-8d8d-4299-9864-864eb9ae23a0.png" /></p>
+
+<p><code class="language-plaintext highlighter-rouge">https</code> だと証明書のインストールを行っておらずアクセスできないので注意。</p>
+
+<h2 id="コンテンツを設置してみる">コンテンツを設置してみる</h2>
+
+<p>バーチャルホストを利用していない場合の Apache ドキュメントルートは <code class="language-plaintext highlighter-rouge">/var/www/html/</code> になる。<br />
+このディレクトリにファイルを設置すれば、任意のページを表示させることができる。</p>
+
+<p>このドキュメントルートの設定は <code class="language-plaintext highlighter-rouge">/etc/httpd/conf/httpd.conf</code> の <code class="language-plaintext highlighter-rouge">DocumentRoot "/var/www/html"</code> の箇所で変更可能。<br />
+設定ファイルを変更した際は Apache の再起動が必要になる。</p>
+

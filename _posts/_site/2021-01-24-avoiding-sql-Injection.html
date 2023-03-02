@@ -1,0 +1,226 @@
+<p><a href="https://akkkky.hatenablog.jp/entry/2021/01/20/001614">前回の記事</a>で <a href="http://d.hatena.ne.jp/keyword/ruby">ruby</a>-pg から <a href="http://d.hatena.ne.jp/keyword/CRUD">CRUD</a> するための方法を書いたが、引数でメモの内容を受け取ってそれをクエリ文字列に結合していたので<a href="http://d.hatena.ne.jp/keyword/SQL%A5%A4%A5%F3%A5%B8%A5%A7%A5%AF%A5%B7%A5%E7%A5%F3">SQLインジェクション</a>の危険性があった。</p>
+
+<p>そのため prepared statement を利用するように変更した。</p>
+
+<!-- more -->
+
+<p>まず本当に文字列結合だと<a href="http://d.hatena.ne.jp/keyword/SQL%A5%A4%A5%F3%A5%B8%A5%A7%A5%AF%A5%B7%A5%E7%A5%F3">SQLインジェクション</a>が実行可能なのか、 prepared statement を利用すれば回避できるのかを検証。</p>
+
+<p>参考サイト：<a href="https://www.jpcert.or.jp/java-rules/ids00-j.html">https://www.jpcert.or.jp/java-rules/ids00-j.html</a></p>
+
+<p>予めこういうテーブルを作っておく。</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">postgres</span><span class="o">=#</span> <span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">injection_test</span> <span class="p">(</span><span class="n">id</span> <span class="nb">SERIAL</span><span class="p">,</span> <span class="n">user_name</span> <span class="nb">TEXT</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span> <span class="n">password</span> <span class="nb">TEXT</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">);</span>
+<span class="k">CREATE</span> <span class="k">TABLE</span>
+</code></pre></div></div>
+
+<p>適当にユーザーを追加。 本来はパスワードを平文で保存することはないがテストなのでその辺りは割愛。</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">postgres</span><span class="o">=#</span> <span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">injection_test</span><span class="p">;</span>
+ <span class="n">id</span> <span class="o">|</span> <span class="n">user_name</span>  <span class="o">|</span>  <span class="n">password</span>
+<span class="c1">----+------------+------------</span>
+  <span class="mi">1</span> <span class="o">|</span> <span class="err">ドラえもん</span> <span class="o">|</span> <span class="n">doradora</span>
+  <span class="mi">2</span> <span class="o">|</span> <span class="err">のび太</span>     <span class="o">|</span> <span class="n">nobinobi</span>
+  <span class="mi">3</span> <span class="o">|</span> <span class="err">スネ夫</span>     <span class="o">|</span> <span class="n">sunesune</span>
+  <span class="mi">4</span> <span class="o">|</span> <span class="err">しずちゃん</span> <span class="o">|</span> <span class="n">shizushizu</span>
+<span class="p">(</span><span class="mi">4</span> <span class="k">rows</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>こういうコードを書いて…</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">require</span> <span class="s1">'pg'</span>
+
+<span class="no">TABLE_NAME</span> <span class="o">=</span> <span class="s1">'injection_test'</span>
+<span class="n">connection</span> <span class="o">=</span> <span class="no">PG</span><span class="p">.</span><span class="nf">connect</span><span class="p">(</span><span class="ss">dbname: </span><span class="s1">'postgres'</span><span class="p">)</span>
+
+<span class="c1"># 文字列結合でクエリを実行しちゃってるユーザー認証</span>
+<span class="k">def</span> <span class="nf">validate_authorization_not_prepared</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+  <span class="c1"># ユーザー名とパスワードが両方一致するかを確認</span>
+  <span class="n">query</span> <span class="o">=</span> <span class="s2">"SELECT * FROM </span><span class="si">#{</span><span class="no">TABLE_NAME</span><span class="si">}</span><span class="s2"> WHERE user_name = '</span><span class="si">#{</span><span class="n">user_name</span><span class="si">}</span><span class="s2">' AND password = '</span><span class="si">#{</span><span class="n">password</span><span class="si">}</span><span class="s2">'"</span>
+  <span class="n">result</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="nf">exec</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">result</span><span class="p">.</span><span class="nf">cmd_tuples</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="nb">puts</span> <span class="s1">'ログインに失敗しました。'</span>
+  <span class="k">else</span>
+    <span class="n">result</span><span class="p">.</span><span class="nf">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">row</span><span class="o">|</span> <span class="nb">puts</span> <span class="s2">"ログインに成功しました。ユーザー情報【id】</span><span class="si">#{</span><span class="n">row</span><span class="p">[</span><span class="s1">'id'</span><span class="p">]</span><span class="si">}</span><span class="s2">【user_name】</span><span class="si">#{</span><span class="n">row</span><span class="p">[</span><span class="s1">'user_name'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">}</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>認証チェック。</p>
+
+<p>存在するユーザーでかつパスワードも正しければユーザー情報を返し、ユーザー名かパスワードのどちらかが一致しなければ認証に失敗する。</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">validate_authorization_not_prepared</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="s1">'ドラえもん'</span><span class="p">,</span> <span class="s1">'doradora'</span><span class="p">)</span>
+<span class="c1"># =&gt; ログインに成功しました。ユーザー情報【id】1【user_name】ドラえもん</span>
+<span class="n">validate_authorization_not_prepared</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="s1">'のび太'</span><span class="p">,</span> <span class="s1">'nobinobi'</span><span class="p">)</span>
+<span class="c1"># =&gt; ログインに成功しました。ユーザー情報【id】2【user_name】のび太</span>
+<span class="n">validate_authorization_not_prepared</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="s1">'ジャイアン'</span><span class="p">,</span> <span class="s1">'doradora'</span><span class="p">)</span>
+<span class="c1"># =&gt; ログインに失敗しました。</span>
+<span class="n">validate_authorization_not_prepared</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="s1">'ドラえもん'</span><span class="p">,</span> <span class="s1">'jaijai'</span><span class="p">)</span>
+<span class="c1"># =&gt; ログインに失敗しました。</span>
+</code></pre></div></div>
+
+<p>この段階では意図した挙動ができている。</p>
+
+<p>次に<a href="http://d.hatena.ne.jp/keyword/SQL%A5%A4%A5%F3%A5%B8%A5%A7%A5%AF%A5%B7%A5%E7%A5%F3">SQLインジェクション</a>を実行してみる。</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">validate_authorization_not_prepared</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="sx">%q[ドラえもん' OR '1'='1]</span><span class="p">,</span> <span class="s1">'どうせ認証通るからパスワードなんでもいいよね'</span><span class="p">)</span>
+<span class="c1"># =&gt; ログインに成功しました。ユーザー情報【id】1【user_name】ドラえもん</span>
+<span class="n">validate_authorization_not_prepared</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="sx">%q[のび太' OR '1'='1]</span><span class="p">,</span> <span class="s1">'ほんとはジャイアンです'</span><span class="p">)</span>
+<span class="c1"># =&gt; ログインに成功しました。ユーザー情報【id】2【user_name】のび太</span>
+</code></pre></div></div>
+
+<p>認証通っちゃった〜！</p>
+
+<blockquote>
+  <p><em>実在する正規のユーザ名であれば、この SELECT 文は validuser のレコードをテーブルから選択する。username=’validuser’ の評価は真となるので、パスワードはチェックされない。つまり OR 以降の部分は評価されないということである。OR 以降の部分が <a href="http://d.hatena.ne.jp/keyword/SQL">SQL</a> 言語の式として文法的に正しければ、攻撃者は validuser のレコードへのアクセスを許可される。</em></p>
+</blockquote>
+
+<p>最悪なのがこの攻撃。</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">validate_authorization_not_prepared</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="s1">'ジャイアン'</span><span class="p">,</span> <span class="sx">%q[' OR '1'='1]</span><span class="p">)</span>
+<span class="c1"># =&gt; ログインに成功しました。ユーザー情報【id】1【user_name】ドラえもん</span>
+<span class="c1"># =&gt; ログインに成功しました。ユーザー情報【id】2【user_name】のび太</span>
+<span class="c1"># =&gt; ログインに成功しました。ユーザー情報【id】3【user_name】スネ夫</span>
+<span class="c1"># =&gt; ログインに成功しました。ユーザー情報【id】4【user_name】しずちゃん</span>
+</code></pre></div></div>
+
+<p>なんと全ユーザーの情報が取れる。</p>
+
+<blockquote>
+  <p><em>‘1’=’1’ は常に真なので、このクエリからはテーブル中のすべての行が出力される。ユーザ名とパスワードの検査は行われず、攻撃者は正しいユーザIDやパスワードを知らなくてもログインできてしまう。</em></p>
+</blockquote>
+
+<p>なのでクエリを文字列結合で実行できるようにちゃうと<a href="http://d.hatena.ne.jp/keyword/SQL%A5%A4%A5%F3%A5%B8%A5%A7%A5%AF%A5%B7%A5%E7%A5%F3">SQLインジェクション</a>が簡単に行えてしまうことが分かった。</p>
+
+<p>次に prepared statement を利用した認証方式。</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># prepared statement</span>
+<span class="k">def</span> <span class="nf">validate_authorization_prepared</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+  <span class="n">query</span> <span class="o">=</span> <span class="s2">"SELECT * FROM </span><span class="si">#{</span><span class="no">TABLE_NAME</span><span class="si">}</span><span class="s2"> WHERE user_name = $1 AND password = $2"</span>
+  <span class="n">prepare_name</span> <span class="o">=</span> <span class="s1">'validate_authorization'</span>
+  <span class="n">delete_if_exist</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="n">prepare_name</span><span class="p">)</span>
+  <span class="n">connection</span><span class="p">.</span><span class="nf">prepare</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+  <span class="n">result</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="nf">exec_prepared</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">,</span> <span class="p">[</span><span class="n">user_name</span><span class="p">,</span> <span class="n">password</span><span class="p">])</span>
+  <span class="k">if</span> <span class="n">result</span><span class="p">.</span><span class="nf">cmd_tuples</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="nb">puts</span> <span class="s1">'ログインに失敗しました。'</span>
+  <span class="k">else</span>
+    <span class="n">result</span><span class="p">.</span><span class="nf">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">row</span><span class="o">|</span> <span class="nb">puts</span> <span class="s2">"ログインに成功しました。ユーザー情報【id】</span><span class="si">#{</span><span class="n">row</span><span class="p">[</span><span class="s1">'id'</span><span class="p">]</span><span class="si">}</span><span class="s2">【user_name】</span><span class="si">#{</span><span class="n">row</span><span class="p">[</span><span class="s1">'user_name'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">}</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="k">def</span> <span class="nf">prepare_exist?</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="n">prepare_name</span><span class="p">)</span>
+  <span class="n">tuple</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="nf">exec</span><span class="p">(</span><span class="s2">"SELECT * FROM pg_prepared_statements WHERE name='</span><span class="si">#{</span><span class="n">prepare_name</span><span class="si">}</span><span class="s2">'"</span><span class="p">).</span><span class="nf">cmd_tuples</span>
+  <span class="n">tuple</span><span class="p">.</span><span class="nf">positive?</span>
+<span class="k">end</span>
+
+<span class="k">def</span> <span class="nf">delete_if_exist</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="n">prepare_name</span><span class="p">)</span>
+  <span class="n">connection</span><span class="p">.</span><span class="nf">exec</span><span class="p">(</span><span class="s2">"DEALLOCATE </span><span class="si">#{</span><span class="n">prepare_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="k">if</span> <span class="n">prepare_exist?</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="n">prepare_name</span><span class="p">)</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">validate_authorization_prepared</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="s1">'ドラえもん'</span><span class="p">,</span> <span class="s1">'doradora'</span><span class="p">)</span>
+<span class="c1"># =&gt; ログインに成功しました。ユーザー情報【id】1【user_name】ドラえもん</span>
+<span class="n">validate_authorization_prepared</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="s1">'ジャイアン'</span><span class="p">,</span> <span class="s1">'jaijai'</span><span class="p">)</span>
+<span class="c1"># =&gt; ログインに失敗しました。</span>
+<span class="n">validate_authorization_prepared</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="sx">%q[ドラえもん' OR '1'='1]</span><span class="p">,</span> <span class="s1">'hoge'</span><span class="p">)</span>
+<span class="c1"># =&gt; ログインに失敗しました。</span>
+<span class="n">validate_authorization_prepared</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="s1">'ジャイアン'</span><span class="p">,</span> <span class="sx">%q[' OR '1'='1]</span><span class="p">)</span>
+<span class="c1"># =&gt; ログインに失敗しました。</span>
+</code></pre></div></div>
+
+<p>ちゃんとユーザー名とパスワードが一致する場合のみ認証を通せていることが分かる。</p>
+
+<p>というわけで上記を踏まえた、<a href="http://d.hatena.ne.jp/keyword/ruby">ruby</a>-pg でのセキュアな <a href="http://d.hatena.ne.jp/keyword/CRUD">CRUD</a> は以下のようになる。</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">CrudController</span>
+  <span class="no">DB_NAME</span> <span class="o">=</span> <span class="s1">'任意のデータベース名'</span>
+  <span class="no">TABLE_NAME</span> <span class="o">=</span> <span class="s1">'任意のテーブル名'</span>
+
+  <span class="k">def</span> <span class="nf">initialize</span>
+    <span class="vi">@connection</span> <span class="o">=</span> <span class="no">PG</span><span class="p">.</span><span class="nf">connect</span><span class="p">(</span><span class="ss">dbname: </span><span class="no">DB_NAME</span><span class="p">)</span>
+    <span class="n">create_table</span> <span class="k">unless</span> <span class="n">table_exist?</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">read_all_note</span>
+    <span class="n">read_all_query</span> <span class="o">=</span> <span class="s2">"SELECT * FROM </span><span class="si">#{</span><span class="no">TABLE_NAME</span><span class="si">}</span><span class="s2">"</span>
+    <span class="n">prepare_name</span> <span class="o">=</span> <span class="s1">'read_all_note'</span>
+    <span class="n">delete_if_exist</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">)</span>
+    <span class="vi">@connection</span><span class="p">.</span><span class="nf">prepare</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">,</span> <span class="n">read_all_query</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="vi">@connection</span><span class="p">.</span><span class="nf">exec_prepared</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">).</span><span class="nf">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">result</span><span class="o">|</span> <span class="n">result</span> <span class="p">}</span>
+    <span class="n">results</span><span class="p">.</span><span class="nf">sort_by</span> <span class="p">{</span> <span class="o">|</span><span class="n">result</span><span class="o">|</span> <span class="n">result</span><span class="p">.</span><span class="nf">values_at</span><span class="p">(</span><span class="s1">'id'</span><span class="p">)</span> <span class="p">}.</span><span class="nf">reverse</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">read_note</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+    <span class="n">read_note_query</span> <span class="o">=</span> <span class="s2">"SELECT * FROM </span><span class="si">#{</span><span class="no">TABLE_NAME</span><span class="si">}</span><span class="s2"> WHERE id = $1"</span>
+    <span class="n">prepare_name</span> <span class="o">=</span> <span class="s1">'read_note'</span>
+    <span class="n">delete_if_exist</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">)</span>
+    <span class="vi">@connection</span><span class="p">.</span><span class="nf">prepare</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">,</span> <span class="n">read_note_query</span><span class="p">)</span>
+    <span class="vi">@connection</span><span class="p">.</span><span class="nf">exec_prepared</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">,</span> <span class="p">[</span><span class="nb">id</span><span class="p">])</span> <span class="p">{</span> <span class="o">|</span><span class="n">result</span><span class="o">|</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">}</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">create_note</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+    <span class="n">create_note_query</span> <span class="o">=</span> <span class="s2">"INSERT INTO </span><span class="si">#{</span><span class="no">TABLE_NAME</span><span class="si">}</span><span class="s2"> (title, body) VALUES ($1, $2) RETURNING id"</span>
+    <span class="n">prepare_name</span> <span class="o">=</span> <span class="s1">'create_note'</span>
+    <span class="n">delete_if_exist</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">)</span>
+    <span class="vi">@connection</span><span class="p">.</span><span class="nf">prepare</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">,</span> <span class="n">create_note_query</span><span class="p">)</span>
+    <span class="vi">@connection</span><span class="p">.</span><span class="nf">exec_prepared</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">,</span> <span class="p">[</span><span class="n">title</span><span class="p">,</span> <span class="n">body</span><span class="p">])</span> <span class="p">{</span> <span class="o">|</span><span class="n">result</span><span class="o">|</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">'id'</span><span class="p">]</span> <span class="p">}</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">update_note</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+    <span class="n">update_note_query</span> <span class="o">=</span> <span class="s2">"UPDATE </span><span class="si">#{</span><span class="no">TABLE_NAME</span><span class="si">}</span><span class="s2"> SET (title, body) = ($2, $3) WHERE id = $1"</span>
+    <span class="n">prepare_name</span> <span class="o">=</span> <span class="s1">'update_note'</span>
+    <span class="n">delete_if_exist</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">)</span>
+    <span class="vi">@connection</span><span class="p">.</span><span class="nf">prepare</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">,</span> <span class="n">update_note_query</span><span class="p">)</span>
+    <span class="vi">@connection</span><span class="p">.</span><span class="nf">exec_prepared</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">,</span> <span class="p">[</span><span class="nb">id</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">body</span><span class="p">])</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">delete_note</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+    <span class="n">delete_note_query</span> <span class="o">=</span> <span class="s2">"DELETE FROM </span><span class="si">#{</span><span class="no">TABLE_NAME</span><span class="si">}</span><span class="s2"> WHERE id = $1"</span>
+    <span class="n">prepare_name</span> <span class="o">=</span> <span class="s1">'delete_note'</span>
+    <span class="n">delete_if_exist</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">)</span>
+    <span class="vi">@connection</span><span class="p">.</span><span class="nf">prepare</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">,</span> <span class="n">delete_note_query</span><span class="p">)</span>
+    <span class="vi">@connection</span><span class="p">.</span><span class="nf">exec_prepared</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">,</span> <span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">id_exist?</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="sr">/^[0-9]+$/</span><span class="p">.</span><span class="nf">match?</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+      <span class="n">exist_id_query</span> <span class="o">=</span> <span class="s2">"SELECT * FROM </span><span class="si">#{</span><span class="no">TABLE_NAME</span><span class="si">}</span><span class="s2"> WHERE id = $1"</span>
+      <span class="n">prepare_name</span> <span class="o">=</span> <span class="s1">'id_exist'</span>
+      <span class="n">delete_if_exist</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">)</span>
+      <span class="vi">@connection</span><span class="p">.</span><span class="nf">prepare</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">,</span> <span class="n">exist_id_query</span><span class="p">)</span>
+      <span class="vi">@connection</span><span class="p">.</span><span class="nf">exec_prepared</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">,</span> <span class="p">[</span><span class="nb">id</span><span class="p">]).</span><span class="nf">cmd_tuples</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="k">else</span>
+      <span class="kp">false</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="kp">private</span>
+
+  <span class="k">def</span> <span class="nf">prepare_exist?</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">)</span>
+    <span class="n">tuple</span> <span class="o">=</span> <span class="vi">@connection</span><span class="p">.</span><span class="nf">exec</span><span class="p">(</span><span class="s2">"SELECT * FROM pg_prepared_statements WHERE name='</span><span class="si">#{</span><span class="n">prepare_name</span><span class="si">}</span><span class="s2">'"</span><span class="p">).</span><span class="nf">cmd_tuples</span>
+    <span class="n">tuple</span><span class="p">.</span><span class="nf">positive?</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">delete_if_exist</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">)</span>
+    <span class="vi">@connection</span><span class="p">.</span><span class="nf">exec</span><span class="p">(</span><span class="s2">"DEALLOCATE </span><span class="si">#{</span><span class="n">prepare_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="k">if</span> <span class="n">prepare_exist?</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">table_exist?</span>
+    <span class="n">exist_table_query</span> <span class="o">=</span> <span class="s2">"SELECT table_name FROM information_schema.tables WHERE table_name = '</span><span class="si">#{</span><span class="no">TABLE_NAME</span><span class="si">}</span><span class="s2">'"</span>
+    <span class="n">prepare_name</span> <span class="o">=</span> <span class="s1">'table_exist'</span>
+    <span class="n">delete_if_exist</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">)</span>
+    <span class="vi">@connection</span><span class="p">.</span><span class="nf">prepare</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">,</span> <span class="n">exist_table_query</span><span class="p">)</span>
+    <span class="vi">@connection</span><span class="p">.</span><span class="nf">exec_prepared</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">).</span><span class="nf">cmd_tuples</span> <span class="o">==</span> <span class="mi">1</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">create_table</span>
+    <span class="n">create_table_query</span> <span class="o">=</span> <span class="s2">"CREATE TABLE </span><span class="si">#{</span><span class="no">TABLE_NAME</span><span class="si">}</span><span class="s2"> (id SERIAL, title TEXT NOT NULL, body TEXT)"</span>
+    <span class="n">prepare_name</span> <span class="o">=</span> <span class="s1">'create_table'</span>
+    <span class="n">delete_if_exist</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">)</span>
+    <span class="vi">@connection</span><span class="p">.</span><span class="nf">prepare</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">,</span> <span class="n">create_table_query</span><span class="p">)</span>
+    <span class="vi">@connection</span><span class="p">.</span><span class="nf">exec_prepared</span><span class="p">(</span><span class="n">prepare_name</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
