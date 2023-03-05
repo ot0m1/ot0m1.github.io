@@ -209,5 +209,3 @@ systemctl disable httpd
 
 このドキュメントルートの設定は `/etc/httpd/conf/httpd.conf` の `DocumentRoot "/var/www/html"` の箇所で変更可能。<br>
 設定ファイルを変更した際は Apache の再起動が必要になる。
-
-
