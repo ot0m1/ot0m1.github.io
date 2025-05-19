@@ -92,12 +92,7 @@ iOS  版のアプリケーションだと、以下の画面のようにアルバ
 
 上記に当てはまる Spotify ユーザーは是非使ってみてください。
 
-※現在 Srive からの API の利用が Spotify 側で Development mode として制限されており、利用者の数に上限があります。
-Srive から Spotify へログインできない場合、[僕](https://twitter.com/ot0m1)に twitter の DM などで 以下の Spotify アカウントの情報を教えていただければ利用者として登録します。
-
-- メールアドレス
-- ユーザー名（https://www.spotify.com/jp/account/overview/ のユーザー名と書かれている箇所の情報）
-
+※現在 Srive からの API の利用が Spotify 側で Development mode として制限されており、利用者ができません。
 Spotify へ制限緩和の申請を行っており、緩和され次第誰でも利用可能になる予定です。
 
 ## 技術スタック
